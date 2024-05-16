@@ -1,3 +1,38 @@
 <?xml version="1.0"?>
 <robot name="omni_robot" xmlns:xacro="https://ros.org/wiki/xacro">
 	<xacro:arg name="robot_name" default="dtw_robot"/>
+	<xacro:include filename="($find omni_sim)/xacro/wheel_macro.xacro" />
+
+	<link name="base_link"/>
+
+	<joint name="body_joint" type="fix">
+		<parent link="base_link"/>
+		<child link="body_link"/>
+		<origin xyz="0 0 0.11" rpy="0 0 0"/>
+	</joint>
+	<link name="body_link">
+		<inertial>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<mass value="2.0"/>
+			<inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.002"/>
+		</inertial>
+		<visual>
+			<geometry>
+				<box size="0.5 0.5 0.06"/>
+			</geometry>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="0.5 0.5 0.06"/>
+			</geometry>
+		</collision>
+	</link>
+
+	<xacro:wheel_macro prefix="fr_wheel" parent="body_link" xyz="0.2 0.2 -0.06"/>
+	<xacro:wheel_macro prefix="fl_wheel" parent="body_link" xyz="0.2 -0.2 -0.06"/>
+	<xacro:wheel_macro prefix="bl_wheel" parent="body_link" xyz="-0.2 -0.2 -0.06"/>
+	<xacro:wheel_macro prefix="br_wheel" parent="body_link" xyz="-0.2 0.2 -0.06"/>
+
+	<gazebo>
+		<plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+
