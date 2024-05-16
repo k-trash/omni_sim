@@ -1,0 +1,3 @@
+<?xml version="1.0"?>
+<robot name="omni_robot" xmlns:xacro="https://ros.org/wiki/xacro">
+	<xacro:arg name="robot_name" default="dtw_robot"/>
