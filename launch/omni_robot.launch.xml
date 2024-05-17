@@ -7,7 +7,7 @@
 	<arg name="world_file" default="/usr/share/gazebo-11/worlds/empty.world"/>
 
 	<include file="$(find-pkg-share gazebo_ros)/launch/gzserver.launch.py">
-		<arg name="use_sim_time" value="$(var use_sim_tim)"/>
+		<arg name="use_sim_time" value="$(var use_sim_time)"/>
 		<arg name="world" value="$(var world_file)"/>
 	</include>
 	<include file="$(find-pkg-share gazebo_ros)/launch/gzclient.launch.py">
