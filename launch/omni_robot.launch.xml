@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+	<arg name="robot_name" default="omni_robot"/>
+	<arg name="xacro_file" default="$(find-pkg-share omni_sim)/xacro/omni_robot.xacro"/>
+	<arg name="use_sim_time" default="true"/>
+	<arg name="robot_description" default="$(command 'xacro $(var xacro_file)')"/>
+	<arg name="world_file" default="/usr/share/gazebo-11/worlds/empty.world"/>
+
+	<include file="$(find-pkg-share gazebo_ros)/launch/gzserver.launch.py">
+		<arg name="use_sim_time" value="$(var use_sim_tim)"/>
+		<arg name="world" value="$(var world_file)"/>
+	</include>
+	<include file="$(find-pkg-share gazebo_ros)/launch/gzclient.launch.py">
+		<arg name="use_sim_time" value="$(var use_sim_time)"/>
+	</include>
+	<node pkg="robot_state_publisher" exec="robot_state_publisher" output="screen">
+		<param name="use_sim_time" value="$(var use_sim_time)"/>
+		<param name="robot_description" value="$(var robot_description)"/>
+	</node>
+	<node pkg="gazebo_ros" exec="spawn_entity.py" args="-entity $(var robot_name) -topic robot_description"/>
+</launch>
