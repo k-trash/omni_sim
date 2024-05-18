@@ -59,7 +59,7 @@
 			<hardware>
 				<plugin>gazebo_ros2_control/GazeboSystem</plugin>
 			</hardware>
-			<joint name="{prefix}_rotate_joint">
+			<joint name="${prefix}_rotate_joint">
 				<command_interface name="position">
 					<param name="min">-15</param>
 					<param name="max">15</param>
@@ -70,7 +70,7 @@
 				<state_interface name="velocity"/>
 				<state_interface name="effort"/>
 			</joint>
-			<joint name="{prefix}_wheel_joint">
+			<joint name="${prefix}_wheel_joint">
 				<command_interface name="velocity">
 					<param name="min">-20</param>
 					<param name="max">20</param>

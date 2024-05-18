@@ -11,7 +11,7 @@ controller_manager:
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
-positoin_controller:
+position_controller:
   ros__parameters:
     joints:
       - fr_wheel_rotate_joint
