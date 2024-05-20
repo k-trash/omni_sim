@@ -11,6 +11,9 @@ controller_manager:
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
+    imu_sensor_broadcaster:
+      type: imu_sensor_broadcaster/IMUSensorBroadcaster
+
 position_controller:
   ros__parameters:
     joints:
@@ -26,3 +29,8 @@ velocity_controller:
       - br_wheel_wheel_joint
       - bl_wheel_wheel_joint
       - fl_wheel_wheel_joint
+
+imu_sensor_broadcaster:
+  ros__parameters:
+    sensor_name: imu_sensor
+    frame_id: imu_link
