@@ -24,4 +24,8 @@
 	</node_container>
 
 	<node pkg="gazebo_ros" exec="spawn_entity.py" args="-entity $(var robot_name) -topic robot_description"/>
+
+	<executable cmd="ros2 control load_controller --set-state active joint_state_broadcaster" output="screen"/>
+	<executable cmd="ros2 control load_controller --set-state active position_controller" output="screen"/>
+	<executable cmd="ros2 control load_controller --set-state active velocity_controller" output="screen"/>
 </launch>

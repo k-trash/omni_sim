@@ -24,7 +24,7 @@ namespace OmniRobotController{
 
 		for(uint8_t i=0;i<4;i++){
 			wheel_vec[i][X] = wheel_d * std::cos(M_PI * (i+0.5f) / 2.0f);
-			wheel_vec[i][Y] = wheel_d * std::sin(M_PI * (1+0.5f) / 2.0f);
+			wheel_vec[i][Y] = wheel_d * std::sin(M_PI * (i+0.5f) / 2.0f);
 		}
 	}
 
@@ -40,13 +40,14 @@ namespace OmniRobotController{
 
 		wheel_r = this->get_parameter("wheel_r").as_double();
 		for(uint8_t i=0;i<4;i++){
-			wheel_vel[i][X] = -msg_.angular.z * wheel_vec[i][X] + msg_.linear.x;
-			wheel_vel[i][Y] =  msg_.angular.z * wheel_vec[i][Y] + msg_.linear.y;
+			wheel_vel[i][X] = -msg_.angular.z * wheel_vec[i][Y] + msg_.linear.x;
+			wheel_vel[i][Y] =  msg_.angular.z * wheel_vec[i][X] + msg_.linear.y;
 			wheel_pos.data.push_back(std::atan2(wheel_vel[i][Y], wheel_vel[i][X]));
 			wheel_ang.data.push_back(std::hypot(wheel_vel[i][X], wheel_vel[i][Y])/wheel_r);
 		}
 
 		wheel_pos_pub->publish(wheel_pos);
+		wheel_vel_pub->publish(wheel_ang);
 	}
 }
 
