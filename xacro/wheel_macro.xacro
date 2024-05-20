@@ -49,6 +49,18 @@
 				</geometry>
 			</collision>
 		</link>
+		<joint name="${prefix}_test" type="fixed">
+			<origin xyz="0 0 0.03"/>
+			<parent link="${prefix}_wheel_link"/>
+			<child link="${prefix}_test_link"/>
+		</joint>
+		<link name="${prefix}_test_link">
+			<visual>
+				<geometry>
+					<box size="0.05 0.05 0.03"/>
+				</geometry>
+			</visual>
+		</link>
 		<gazebo reference="${prefix}_wheel_link">
 			<mu1 value="2.5"/>
 			<mu2 value="2.5"/>
