@@ -29,9 +29,9 @@
 	</link>
 
 	<xacro:wheel_macro prefix="fr_wheel" parent="body_link" xyz="0.2 0.2 -0.06"/>
-	<xacro:wheel_macro prefix="fl_wheel" parent="body_link" xyz="0.2 -0.2 -0.06"/>
+	<xacro:wheel_macro prefix="fl_wheel" parent="body_link" xyz="-0.2 0.2 -0.06"/>
 	<xacro:wheel_macro prefix="bl_wheel" parent="body_link" xyz="-0.2 -0.2 -0.06"/>
-	<xacro:wheel_macro prefix="br_wheel" parent="body_link" xyz="-0.2 0.2 -0.06"/>
+	<xacro:wheel_macro prefix="br_wheel" parent="body_link" xyz="0.2 -0.2 -0.06"/>
 
 	<ros2_control name="GazeboSystem" type="system">
 		<hardware>
