@@ -35,70 +35,20 @@
 			</geometry>
 		</collision>
 	</link>
-	<joint name="imu_join" type="fixed">
-		<origin xyz="0 0 0" rpy="0 0 0"/>
-		<parent link="body_link"/>
-		<child link="imu_link"/>
-	</joint>
-	<link name="imu_link"/>
-	<gazebo reference="imu_link">
-		<sensor name="imu_sensor" type="imu">
-			<always_on>1</always_on>
-			<update_rate>10.0</update_rate>
-		</sensor>
-	</gazebo>
-	<joint name="scan_joint" type="fixed">
-		<origin xyz="0 0.2 -0.04" rpy="0 0 0"/>
-		<parent link="body_link"/>
-		<child link="laser_link"/>
-	</joint>
-	<link name="laser_link">
-		<visual>
-			<cylinder radius="0.04" length="0.02"/>
-		</visual>
-	</link>
-	<gazebo reference="laser_link">
-		<sensor name="laser_link" type="ray">
-			<topic>scan</topic>
-			<ignition_frame_id>laser_link</ignition_frame_id>
-			<update_rate>5</update_rate>
-			<ray>
-				<scan>
-					<horizontal>
-						<samples>360</samples>
-						<resolution>1</resolution>
-						<min_angle>0</min_angle>
-						<max_angle>6.28</max_angle>
-					</horizontal>
-				</scan>
-				<range>
-					<min>0.120000</min>
-					<max>20.0</max>
-					<resolution>0.015000</resolution>
-				</range>
-				<frame_id>laser_link</frame_id>
-				<noise>
-					<type>gaussian</type>
-					<mean>0.0</mean>
-					<stddev>0.01</stddev>
-				</noise>
-			</ray>
-			<always_on>true</always_on>
-			<visualize>false</visualize>
-			<plugin name="turtlebot3_laserscan" filename="libgazebo_ros_ray_sensor.so">
-				<ros>
-					<remapping>~/out:=scan</remapping>
-				</ros>
-				<output_type>sensor_msgs/LaserScan</output_type>
-				<frame_name>laser_link</frame_name>
-			</plugin>
-		</sensor>
-	</gazebo>
+
+	<xacro:imu_macro prefix="imu" parent="body_link" xyz="0 0 0" rpy="0 0 0"/>
+	<xacro:lidar_macro prefix="laser" parent="body_link" xyz="0 0.2 -0.04" rpy="0 0 0"/>
 
 	<xacro:wheel_macro prefix="fr_wheel" parent="body_link" xyz="0.2 0.2 -0.06"/>
 	<xacro:wheel_macro prefix="fl_wheel" parent="body_link" xyz="-0.2 0.2 -0.06"/>
 	<xacro:wheel_macro prefix="bl_wheel" parent="body_link" xyz="-0.2 -0.2 -0.06"/>
 	<xacro:wheel_macro prefix="br_wheel" parent="body_link" xyz="0.2 -0.2 -0.06"/>
+
+	<ros2_control name="GazeboSystem" type="system">
+		<hardware>
+			<plugin>gazebo_ros2_control/GazeboSystem</plugin>
+		</hardware>
+	</ros2_control>
 
 	<xacro:control_macro/>
 
