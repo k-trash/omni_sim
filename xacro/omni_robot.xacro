@@ -3,6 +3,7 @@
 	<xacro:arg name="robot_name" default="omni_robot"/>
 	<xacro:include filename="$(find omni_sim)/xacro/wheel_macro.xacro"/>
 	<xacro:include filename="$(find omni_sim)/xacro/control_macro.xacro"/>
+	<xacro:include filename="$(find omni_sim)/xacro/sensor_macro.xacro"/>
 
 	<link name="base_footprint"/>
 
@@ -48,9 +49,13 @@
 		<hardware>
 			<plugin>gazebo_ros2_control/GazeboSystem</plugin>
 		</hardware>
-	</ros2_control>
+		<xacro:wheel_control_macro prefix="fr_wheel"/>
+		<xacro:wheel_control_macro prefix="fl_wheel"/>
+		<xacro:wheel_control_macro prefix="bl_wheel"/>
+		<xacro:wheel_control_macro prefix="br_wheel"/>
 
-	<xacro:control_macro/>
+		<xacro:imu_control_macro prefix="imu"/>
+	</ros2_control>
 
 	<gazebo>
 		<plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
