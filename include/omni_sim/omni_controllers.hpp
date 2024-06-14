@@ -35,29 +35,47 @@ namespace OmniControllers{
 		private:
 			struct WheelHandle{
 				std::reference_wrapper<const hardware_interface::LoanedStateInterface> feedback;
-				std::reference_wrapper<hardware_interface::LoanedCommandInterface> position;
 				std::reference_wrapper<hardware_interface::LoanedCommandInterface> velocity;
 			};
+
+			struct RotateHandle{
+				std::reference_wrapper<const hardware_interface::LoanedStateInterface> feedback;
+				std::reference_wrapper<hardware_interface::LoanedCommandInterface> position;
+			}
 
 			std::vector<WheelHandle> registered_fr_wheel_handles;
 			std::vector<WheelHandle> registered_fl_wheel_handles;
 			std::vector<WheelHandle> registered_bl_wheel_handles;
 			std::vector<WheelHandle> registered_br_wheel_handles;
 
+			std::vector<RotateHandle> registered_fr_rotate_handles;
+			std::vector<RotateHandle> registered_fl_rotate_handles;
+			std::vector<RotateHandle> registered_bl_rotate_handles;
+			std::vector<RotateHandle> registered_br_rotate_handles;
+
 			rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub = nullptr;
+			realtime_tools::RealtimePublisher<nav_msgs::msg::Odometry>::SharedPtr realtime_odom_pub = nullptr;
+			rclcpp::Publisher<tf2_msgs::msg::Odometry>::SharedPtr odom_tranform_pub = nullptr;
+			realtime_tools::RealtimePublisher<tf2_msgs::msg::TFMessage>::SharedPtr realtime_odom_transform_pub = nullptr;
 			rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr vel_sub = nullptr;
 
-			realtime_tools::RealtimeBox<std::shared_ptr<geometry_msgs::msg::TwistStamped> > receive_velocity_msg_ptr{nullptr};
+			realtime_tools::RealtimeBox<std::shared_ptr<geometry_msgs::msg::TwistStamped> > receive_vel_msg_ptr{nullptr};
+			std::queue<geometry_msgs::msg::TwistStamped> pre_cmd;
+
+			enum WHEEL_NUM{
+				FR, FL, BL, BR
+			};
 
 			std::shared_ptr<ParamListener> param_listener;
 			Params params;
 
 			std::chrono::illiseconds cmd_vel_timeout{500};
-			rclcpp::Time previous_update_timestamp{0};
+			rclcpp::Time pre_update_timestamp{0};
 
 			bool is_halted = false;
 
-			controller_interface::CallbackReturn configure_side(const std::string& side_, const std::vector<std::string>& wheel_names_, std::vector<WheelHandle>& registered_handles_);
+			controller_interface::CallbackReturn configure_wheel(const std::string& side_, const std::vector<std::string>& wheel_names_, std::vector<WheelHandle>& registered_handles_);
+			controller_interface::CallbackReturn configure_rotate(const std::string& side_, const std::vector<std::string>& wheel_names_, std::vector<RotateHandle>& registered_handles_);
 			bool reset(void);
 			void halt(void);
 	};
