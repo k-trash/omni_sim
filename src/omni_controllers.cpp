@@ -189,7 +189,7 @@ namespace OmniControllers{
 			return controller_interface::CallbackReturn::ERROR;
 		}
 
-		receive_velocity_msg_ptr.set(std::make_shared<geometry_msgs::msg::TwistStamped>(empyu_twist);
+		receive_velocity_msg_ptr.set(std::make_shared<geometry_msgs::msg::TwistStamped>(empyu_twist));
 
 		pre_cmd.emplace(empty_twist);
 		pre_cmd.emplace(empty_twist);
@@ -206,7 +206,10 @@ namespace OmniControllers{
 	}
 
 	controller_interface::CallbackReturn OmniControllers::on_activate(const rclcpp_lifecycle::State& previous_state_){
+		controller_interface::CallbackReturn wheel_result[4];
+		controller_interface::CallbackReturn rotate_result[4];
 
+		wheel_result[FR] = configureWheel("FR", params.fr_wheel_)
 	}
 	
 	controller_interface::CallbackReturn OmniControllers::on_deactivate(const rclcpp_lifecycle::State& previous_state_){
