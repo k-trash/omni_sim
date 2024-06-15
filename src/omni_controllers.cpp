@@ -23,6 +23,7 @@ namespace OmniControllers{
 
 	controller_interface::CallbackReturn OmniController::on_init(void){
 		try{
+			//setup parameter listener
 			param_listener = std::make_shared<ParamListener>(get_node());
 			params = param_listener->get_param();
 		}catch(const std::exception& e){
@@ -31,25 +32,21 @@ namespace OmniControllers{
 		}
 
 		return controller_interface::CallbackReturn::SUCCESS;
-	}left_wheel
+	}
 
 	controller_interface::InterfaceCofiguration OmniController::command_interface_configuration(void) const {
 		std::vector<std::string> conf_names;
-		for(const auto& joint_name: params.fr_wheel_name){
-			conf_names.push_back(joint_name + "_rotate/" + hardware_interface::HW_IF_POSITION);
-			conf_names.push_back(joint_name + "_wheel/" + hardware_interface::HW_IF_VELOCITY);
+			
+		wheel_joint_name.clear();
+		rotate_joint_name.clear();
+		
+		for(const auto& joint_name: params.wheel_name){
+			wheel_joint_name.push_back(joint_name);
+			conf_names.push_back(joint_name + "/" +  hardware_interface::HW_IF_POSITION);
 		}
-		for(const auto& joint_name: params.fl_wheel_name){
-			conf_names.push_back(joint_name + "_rotate/" + hardware_interface::HW_IF_POSITION);
-			conf_names.push_back(joint_name + "_wheel/" + hardware_interface::HW_IF_VELOCITY);
-		}
-		for(const auto& joint_name: params.bl_wheel_name){
-			conf_names.push_back(joint_name + "_rotate/" + hardware_interface::HW_IF_POSITION);
-			conf_names.push_back(joint_name + "_wheel/" + hardware_interface::HW_IF_VELOCITY);
-		}
-		for(const auto& joint_name: params.br_wheel_name){
-			conf_names.push_back(joint_name + "_rotate/" + hardware_interface::HW_IF_POSITION);
-			conf_names.push_back(joint_name + "_wheel/" + hardware_interface::HW_IF_VELOCITY);
+		for(const auto& joint_name: params.rotate_name){
+			rotate_joint_name.push_back(joint_name);
+			conf_names.push_back(joint_name + "/" + hardware_interface::HW_IF_VELOCITY);
 		}
 
 		return {interface_configuration_type::INDIVIDUAL, conf_names};
@@ -84,7 +81,7 @@ namespace OmniControllers{
 		receive_velocity_msg_ptr.get(last_cmd_msg);
 
 		if(last_cmd_msg == nullptr){
-			RCLCPP_WARN(this->get_logger(), "Velocity message received was a nullptr.");
+			RCLCPP_WARN(get_node()->get_logger(), "Velocity message received was a nullptr.");
 			return controller_interface::return_type::ERROR;
 		}
 
@@ -101,26 +98,26 @@ namespace OmniControllers{
 		linear_cmd_y = cmd.twist.linear.y;
 		angular_cmd = cmd.twist.angular.z;
 
-		wheel_feedback[FR] = register_fr_wheel_handles[0].feedback.get().get_value();
-		wheel_feedback[FL] = register_fl_wheel_handles[0].feedback.get().get_value();
-		wheel_feedback[BL] = register_bl_wheel_handles[0].feedback.get().get_value();
-		wheel_feedback[BR] = register_br_wheel_handles[0].feedback.get().get_value();
+		wheel_feedback[FR] = register_wheel_handles[FR].feedback.get().get_value();
+		wheel_feedback[FL] = register_wheel_handles[FL].feedback.get().get_value();
+		wheel_feedback[BL] = register_wheel_handles[BL].feedback.get().get_value();
+		wheel_feedback[BR] = register_wheel_handles[BR].feedback.get().get_value();
 
 		if(std::isnan(wheel_feedback[FR]) or std::isnan(wheel_feedback[FL]) or std::isnan(wheel_feedback[BL] or std::isnan(wheel_feedback[BR]){
 			RCLCPP_ERROR(this->get_logger(), "Wheel odom is invalid");
 			return controller_interface::return_type::ERROR;
 		}
 
-		rotate_feedback[FR] = register_fr_rotate_handles[0].feedback.get().get_value();
-		rotate_feedback[FL] = register_fl_rotate_handles[0].feedback.get().get_value();
-		rotate_feedback[BL] = register_bl_rotate_handles[0].feedback.get().get_value();
-		rotate_feedback[BR] = register_br_rotate_handles[0].feedback.get().get_value();
+		rotate_feedback[FR] = register_rotate_handles[FR].feedback.get().get_value();
+		rotate_feedback[FL] = register_rotate_handles[FL].feedback.get().get_value();
+		rotate_feedback[BL] = register_rotate_handles[BL].feedback.get().get_value();
+		rotate_feedback[BR] = register_rotate_handles[BR].feedback.get().get_value();
 
 		odometory.updateOdom(wheel_feedback, rotate_feedback, time);
 
 		orientation.setRPY(0,0, odometry.getYaw());
 
-		odom_msg.header.stamp = time;
+		odom_msg.header.stamp = time_;
 		odom_msg.header.frame_id = params.odom_frame_id;
 		odom_msg.child_frame_id = params.base_frame_id;
 		odom_msg.pose.pose.position.x = odometry.getX();
@@ -133,7 +130,7 @@ namespace OmniControllers{
 		odom_msg.twist.twist.linear.y = odometry.getYv();
 		odom_msg.twist.twist.angular.z = odometry.getAngular();
 
-		tf_odom_msg.header.stamp = time;
+		tf_odom_msg.header.stamp = time_;
 		tf_odom_msg.header.frame_id = params.odom_frame_id;
 		tf_odom_msg.child_frame_id = params.base_frame_id;
 		tf_odom_msg.transform.translation.x = odometry.getX();
@@ -151,15 +148,15 @@ namespace OmniControllers{
 			wheel_vel[i][Y] =  angular_cmd * wheel_vec[i][X] + linear_cmd_y;
 		}
 
-		register_fr_wheel_handles[0].velocity.get().set_value(std::hypot(wheel_vel[FR][X], wheel_vel[FR][Y])/wheel_r);
-		register_fl_wheel_handles[0].velocity.get().set_value(std::hypot(wheel_vel[FL][X], wheel_vel[FL][Y])/wheel_r);
-		register_bl_wheel_handles[0].velocity.get().set_value(std::hypot(wheel_vel[BL][X], wheel_vel[BL][Y])/wheel_r);
-		register_br_wheel_handles[0].velocity.get().set_value(std::hypot(wheel_vel[BR][X], wheel_vel[BR][Y])/wheel_r);
+		register_wheel_handles[FR].velocity.get().set_value(std::hypot(wheel_vel[FR][X], wheel_vel[FR][Y])/wheel_r);
+		register_wheel_handles[FL].velocity.get().set_value(std::hypot(wheel_vel[FL][X], wheel_vel[FL][Y])/wheel_r);
+		register_wheel_handles[BL].velocity.get().set_value(std::hypot(wheel_vel[BL][X], wheel_vel[BL][Y])/wheel_r);
+		register_wheel_handles[BR].velocity.get().set_value(std::hypot(wheel_vel[BR][X], wheel_vel[BR][Y])/wheel_r);
 
-		register_fr_rotate_handles[0].position.get().set_value(std::atan2(wheel_vel[FR][Y], wheel_vel[FR][X]));
-		register_fl_rotate_handles[0].position.get().set_value(std::atan2(wheel_vel[FL][Y], wheel_vel[FL][X]));
-		register_bl_rotate_handles[0].position.get().set_value(std::atan2(wheel_vel[BL][Y], wheel_vel[BL][X]));
-		register_br_rotate_handles[0].position.get().set_value(std::atan2(wheel_vel[BR][Y], wheel_vel[BR][X]));
+		register_rotate_handles[FR].position.get().set_value(std::atan2(wheel_vel[FR][Y], wheel_vel[FR][X]));
+		register_rotate_handles[FL].position.get().set_value(std::atan2(wheel_vel[FL][Y], wheel_vel[FL][X]));
+		register_rotate_handles[BL].position.get().set_value(std::atan2(wheel_vel[BL][Y], wheel_vel[BL][X]));
+		register_rotate_handles[BR].position.get().set_value(std::atan2(wheel_vel[BR][Y], wheel_vel[BR][X]));
 
 		return controller_interface::return_type::OK;
 	}
@@ -189,7 +186,7 @@ namespace OmniControllers{
 			return controller_interface::CallbackReturn::ERROR;
 		}
 
-		receive_velocity_msg_ptr.set(std::make_shared<geometry_msgs::msg::TwistStamped>(empyu_twist));
+		receive_vel_msg_ptr.set(std::make_shared<geometry_msgs::msg::TwistStamped>(empyu_twist));
 
 		pre_cmd.emplace(empty_twist);
 		pre_cmd.emplace(empty_twist);
@@ -206,10 +203,27 @@ namespace OmniControllers{
 	}
 
 	controller_interface::CallbackReturn OmniControllers::on_activate(const rclcpp_lifecycle::State& previous_state_){
-		controller_interface::CallbackReturn wheel_result[4];
-		controller_interface::CallbackReturn rotate_result[4];
+		controller_interface::CallbackReturn wheel_result;
+		controller_interface::CallbackReturn rotate_result;
 
-		wheel_result[FR] = configureWheel("FR", params.fr_wheel_)
+		wheel_result = configureWheel(wheel_joint_name, registered_wheel_handles);
+		rotate_result = configureWheel(rotate_joint_name, registered_rotate_handles);
+
+		if(wheel_result == controller_interface::CallbackReturn::ERROR or rotate_result == controller_interface::CallbackReturn::ERROR){
+			return controller_interface::CallbackReturn::ERROR;
+		}
+
+		if(registered_wheel_handles.empty() or registered_rotate_handles.empty()){
+			RCLCPP_ERROR(get_node()->get_logger(), "Wheel interfaces are non exsistent");
+			return controller_interfaces::CallbackReturn::ERROR;
+		}
+
+		is_halted = false;
+		subscriber_is_active = true;
+
+		RCLCPP_DEBUG(get_node()->get_logger(), "Subscriber and publisher are now active");
+
+		return controller_interface::CallbackReturn::SUCCESS;
 	}
 	
 	controller_interface::CallbackReturn OmniControllers::on_deactivate(const rclcpp_lifecycle::State& previous_state_){

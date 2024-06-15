@@ -43,15 +43,10 @@ namespace OmniControllers{
 				std::reference_wrapper<hardware_interface::LoanedCommandInterface> position;
 			}
 
-			std::vector<WheelHandle> registered_fr_wheel_handles;
-			std::vector<WheelHandle> registered_fl_wheel_handles;
-			std::vector<WheelHandle> registered_bl_wheel_handles;
-			std::vector<WheelHandle> registered_br_wheel_handles;
-
-			std::vector<RotateHandle> registered_fr_rotate_handles;
-			std::vector<RotateHandle> registered_fl_rotate_handles;
-			std::vector<RotateHandle> registered_bl_rotate_handles;
-			std::vector<RotateHandle> registered_br_rotate_handles;
+			std::vector<WheelHandle> registered_wheel_handles;
+			std::vector<RotateHandle> registered_rotate_handles;
+			std::vector<std::string> wheel_joint_name;
+			std::vector<std::string> rotate_joint_name;
 
 			rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub = nullptr;
 			realtime_tools::RealtimePublisher<nav_msgs::msg::Odometry>::SharedPtr realtime_odom_pub = nullptr;
@@ -76,8 +71,8 @@ namespace OmniControllers{
 
 			double wheel_vel[4];
 
-			controller_interface::CallbackReturn configure_wheel(const std::string& side_, const std::vector<std::string>& wheel_names_, std::vector<WheelHandle>& registered_handles_);
-			controller_interface::CallbackReturn configure_rotate(const std::string& side_, const std::vector<std::string>& wheel_names_, std::vector<RotateHandle>& registered_handles_);
+			controller_interface::CallbackReturn configureWheel(const std::vector<std::string>& wheel_names_, std::vector<WheelHandle>& registered_handles_);
+			controller_interface::CallbackReturn configureRotate(const std::vector<std::string>& wheel_names_, std::vector<RotateHandle>& registered_handles_);
 			bool reset(void);
 			void halt(void);
 	};
