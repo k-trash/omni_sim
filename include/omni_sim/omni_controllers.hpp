@@ -74,6 +74,8 @@ namespace OmniControllers{
 
 			bool is_halted = false;
 
+			double wheel_vel[4];
+
 			controller_interface::CallbackReturn configure_wheel(const std::string& side_, const std::vector<std::string>& wheel_names_, std::vector<WheelHandle>& registered_handles_);
 			controller_interface::CallbackReturn configure_rotate(const std::string& side_, const std::vector<std::string>& wheel_names_, std::vector<RotateHandle>& registered_handles_);
 			bool reset(void);

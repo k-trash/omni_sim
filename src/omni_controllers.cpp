@@ -16,7 +16,6 @@
 #include <nav_msgs/msg/odometry.hpp>
 #include <hardware_interface/handle.hpp>
 
-
 #include <class_loader/register_macro.hpp>
 
 namespace OmniControllers{
@@ -60,6 +59,7 @@ namespace OmniControllers{
 		std::shared_ptr<geometry_msgs::msg::TwistStamped> last_cmd_msg;
 		geometry_msgs::msg::TwistStamped cmd;
 		nav_msgs::msg::Odometry odom_msg;
+		ft2_msgs::msg::TFMessage tf_odom_msg;
 		double *linear_cmd_x;
 		double *linear_cmd_y;
 		double *angular_cmd;
@@ -133,11 +133,22 @@ namespace OmniControllers{
 		odom_msg.twist.twist.linear.y = odometry.getYv();
 		odom_msg.twist.twist.angular.z = odometry.getAngular();
 
+		tf_odom_msg.header.stamp = time;
+		tf_odom_msg.header.frame_id = params.odom_frame_id;
+		tf_odom_msg.child_frame_id = params.base_frame_id;
+		tf_odom_msg.transform.translation.x = odometry.getX();
+		tf_odom_msg.transform.translation.y = odometry.getY();
+		tf_odom_msg.transform.rotation.x = orientation.x;
+		tf_odom_msg.transform.ratation.y = orientation.y;
+		tf_odom_msg.transform.ratation.z = orientation.z;
+		tf_odom_msg.transform.ratation.w = orientation.w;
+
 		realtime_odom_pub->publish(odom_msg);
+		realtime_odom_transform_pub->publish(tf_odom_msg);
 
 		for(uint8_t i=0;i<4;i++){
-			wheel_vel[i][X] = -msg_.angular.z * wheel_vec[i][Y] + msg_.linear.x;
-			wheel_vel[i][Y] =  msg_.angular.z * wheel_vec[i][X] + msg_.linear.y;
+			wheel_vel[i][X] = -angular_cmd * wheel_vec[i][Y] + linear_cmd_x;
+			wheel_vel[i][Y] =  angular_cmd * wheel_vec[i][X] + linear_cmd_y;
 		}
 
 		register_fr_wheel_handles[0].velocity.get().set_value(std::hypot(wheel_vel[FR][X], wheel_vel[FR][Y])/wheel_r);
@@ -167,6 +178,11 @@ namespace OmniControllers{
 
 		odometry.setWheelRadius(wheel_r, wheel_d);
 
+		for(uint8_t i=0;i<4;i++){
+			wheel_vec[i][X] = wheel_d * std::cos(M_PI * (i+0.5f) / 2.0f);
+			wheel_vec[i][Y] = wheel_d * std::sin(M_PI * (i+0.5f) / 2.0f);
+		}
+
 		cmd_vel_timeout = std::chrono::milliseconds{static_cast<int>(params.cmd_vel_timeout * 1000)};
 
 		if(!reset()){
@@ -181,8 +197,12 @@ namespace OmniControllers{
 		vel_sub = get_node()->create_subscription<geometry_msgs::msg::TwistStamped>("cmd_vel", rclcpp::SystemDefaultsQoS(), std::bind(&OmniControllers::velCallback, this, std::placeholders::_1));
 		odom_pub = get_node()->create_publisher<nav_msgs::msg::Odometry>("odom", rclcpp::SystemDefaultsQoS());
 		realtime_odom_pub = std::make_shared<realtime_tools::RealtimePublisher<nav_msgs::msg::Odometry> >(odom_pub);
+		odom_transform_pub = get_node()->create_publisher<tf2_msgs::msg::Odometry>("odom_tf", rclcpp::SystemDefaultsQoS());
+		realtime_odom_transform_pub = std::make_shared<realtime_tools::RealtimePublisher<tf2_msgs::msg::TFMessage> >(odom_transform_pub);
 
+		pre_update_timestamp = get_node()->get_clock()->now();
 
+		return controller_interface::CallbackReturn::SUCCESS;
 	}
 
 	controller_interface::CallbackReturn OmniControllers::on_activate(const rclcpp_lifecycle::State& previous_state_){
