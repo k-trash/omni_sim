@@ -227,19 +227,39 @@ namespace OmniControllers{
 	}
 	
 	controller_interface::CallbackReturn OmniControllers::on_deactivate(const rclcpp_lifecycle::State& previous_state_){
+		subscriber_is_active = false;
 
+		if(!is_halted){
+			halt();
+			is_halted = true;
+		}
+
+		registered_wheel_handles.clear();
+		registered_rotate_handles.clear();
+
+		return controller_interface::CallbackReturn::SUCCESS;
 	}
 
 	controller_interface::CallbackReturn OmniControllers::on_cleanup(const rclcpp_lifecycle::State& previous_state){
+		if(!reset()){
+			return controller_interface::CallbackReturn::ERROR;
+		}
 
+		received_vel_msg_ptr.set(std::make_shared<geometry_msgs::msg::TwistStamped>());
+
+		return controller_interface::CallbackReturn::SUCCESS;
 	}
 
 	controller_interface::CallbackReturn OmniControllers::on_error(const rclcpp_lifecycle::State& previous_state){
+		if(!reset()){
+			return controller_interface::CallbackReturn::ERROR;
+		}
 
+		return controller_interface::CallbackReturn::SUCCESS;
 	}
 
 	controller_interface::CallbackReturn OmniControllers::on_shutdown(const rclcpp_lifecycle::State& previous_state){
-
+		return controller_interface::CallbackReturn::SUCCESS;
 	}
 }
 
