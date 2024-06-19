@@ -261,6 +261,52 @@ namespace OmniControllers{
 	controller_interface::CallbackReturn OmniControllers::on_shutdown(const rclcpp_lifecycle::State& previous_state){
 		return controller_interface::CallbackReturn::SUCCESS;
 	}
+
+	void velCallback(const std::shared_ptr<geometry_msgs::msg::TwistStamped> cmd_vel_){
+		if(!subscriber_is_active){
+			RCLCPP_WARN(get_node()->get_logger(), "Can't accept new command due to subscriber no activated");
+			return;
+		}
+		if((cmd_vel_->header.stamp.sec == 0) and (cmd_vel_->header.stamp.nanosec == 0)){
+			RCLCPP_WARN_ONCE(get_node()->get_logger(), "Received TwistStamped with zero timestamp, setting it to current " "time, this message will only be shown once");
+			cmd_vel_->header.stamp = get_node()->get_clock()->now();
+		}
+
+		received_vel_msg_ptr.set(std::move(cmd_vel_));
+	}
+
+	controller_interface::CallbackReturn configureWheel(const std::vector<std::string>& wheel_names_, std::vector<WheelHandle>& registered_handles_){
+		if(wheel_names_.empty()){
+			RCLCPP_ERROR(get_node()->get_logger(), "No wheel name specified");
+			return controller_interface::CallbackReturn::ERROR;
+		}
+
+		registered_handles_.reserve(wheel_names.size());
+		for(const auto& wheel_name : wheel_names){
+			const auto state_handle = std::find_if(state_interfaces_.cbegin(), state_interfaces_.cend(),
+			[&wheel_name, &interface_name](const auto & interface)
+			{
+				return interface.get_prefix_name() == wheel_name &&
+				interface.get_interface_name() == hardware_interface::HW_IF_VELOCITY;
+			});
+
+			if(state_handle == state_interfaces_.cend){		//state_interfaces_ https://control.ros.org/galactic/doc/api/classhardware__interface_1_1LoanedStateInterface.html
+				RCLCPP_ERROR(get_node()->get_logger(), "Unable to obrain joint state handle for %s", wheel_name.c_str());
+				return controller_interface::CallbackReturn::ERROR;
+			}
+
+			const auto command_handle = std::find_if(command_interfaces_.begin(), command_interfaces_.end(), [&wheel_name](const auto & interface)
+			{
+				return interface.get_prefix_name() == wheel_name &&
+				interface.get_interface_name() == HW_IF_VELOCITY;
+			});
+
+		}
+	}
+
+	controller_interface::CallbackReturn configureRotate(const std::vector<std::string>& wheel_names_, std::vector<RotateHandle>& registered_handles_);
+	bool reset(void);
+	void halt(void);
 }
 
 CLASS_LOADER_REGISTER_CLASS(OmniControllers::OmniController, controller_interface::ControllerInterface)

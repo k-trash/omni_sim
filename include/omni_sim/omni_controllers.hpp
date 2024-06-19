@@ -71,6 +71,7 @@ namespace OmniControllers{
 
 			double wheel_vel[4];
 
+			void velCallback(const std::shared_ptr<geometry_msgs::msg::TwistStamped> cmd_vel_);
 			controller_interface::CallbackReturn configureWheel(const std::vector<std::string>& wheel_names_, std::vector<WheelHandle>& registered_handles_);
 			controller_interface::CallbackReturn configureRotate(const std::vector<std::string>& wheel_names_, std::vector<RotateHandle>& registered_handles_);
 			bool reset(void);
