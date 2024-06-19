@@ -68,12 +68,13 @@ namespace OmniControllers{
 			rclcpp::Time pre_update_timestamp{0};
 
 			bool is_halted = false;
+			bool subscriber_is_active;
 
 			double wheel_vel[4];
 
 			void velCallback(const std::shared_ptr<geometry_msgs::msg::TwistStamped> cmd_vel_);
 			controller_interface::CallbackReturn configureWheel(const std::vector<std::string>& wheel_names_, std::vector<WheelHandle>& registered_handles_);
-			controller_interface::CallbackReturn configureRotate(const std::vector<std::string>& wheel_names_, std::vector<RotateHandle>& registered_handles_);
+			controller_interface::CallbackReturn configureRotate(const std::vector<std::string>& rotate_names_, std::vector<RotateHandle>& registered_handles_);
 			bool reset(void);
 			void halt(void);
 	};

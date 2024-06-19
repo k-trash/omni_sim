@@ -61,8 +61,8 @@ namespace OmniControllers{
 		double *linear_cmd_y;
 		double *angular_cmd;
 		double wheel_r;
-		double wheel_feedback[4] = {0.0f};
-		double rotate_feedback[4] = {0.0f};
+		std::shared_ptr<double> wheel_feedback(new double[4], std::default_delete<double[]>());
+		std::shared_ptr<double> rotate_feedback(new double[4], std::default_delete<double[]>());
 		double wheel_vel[4][2] = {0.0f};
 		tf2::Quaternion orientation;
 		auto logger = get_node()->get_logger();
@@ -98,13 +98,13 @@ namespace OmniControllers{
 		linear_cmd_y = cmd.twist.linear.y;
 		angular_cmd = cmd.twist.angular.z;
 
-		wheel_feedback[FR] = register_wheel_handles[FR].feedback.get().get_value();
-		wheel_feedback[FL] = register_wheel_handles[FL].feedback.get().get_value();
-		wheel_feedback[BL] = register_wheel_handles[BL].feedback.get().get_value();
-		wheel_feedback[BR] = register_wheel_handles[BR].feedback.get().get_value();
+		wheel_feedback[FR] = register_wheel_handles[FR].feedback.get().get_value() * wheel_r;
+		wheel_feedback[FL] = register_wheel_handles[FL].feedback.get().get_value() * wheel_r;
+		wheel_feedback[BL] = register_wheel_handles[BL].feedback.get().get_value() * wheel_r;
+		wheel_feedback[BR] = register_wheel_handles[BR].feedback.get().get_value() * wheel_r;
 
 		if(std::isnan(wheel_feedback[FR]) or std::isnan(wheel_feedback[FL]) or std::isnan(wheel_feedback[BL] or std::isnan(wheel_feedback[BR]){
-			RCLCPP_ERROR(this->get_logger(), "Wheel odom is invalid");
+			RCLCPP_ERROR(get_node()->get_logger(), "Wheel odom is invalid");
 			return controller_interface::return_type::ERROR;
 		}
 
@@ -113,32 +113,24 @@ namespace OmniControllers{
 		rotate_feedback[BL] = register_rotate_handles[BL].feedback.get().get_value();
 		rotate_feedback[BR] = register_rotate_handles[BR].feedback.get().get_value();
 
-		odometory.updateOdom(wheel_feedback, rotate_feedback, time);
+		if(std::isnan(rotate_feedback[FR]) or std::isnan(rotate_feedback[FL]) or std::isnan(rotate_feedback[BL] or std::isnan(rotate_feedback[BR]){
+			RCLCPP_ERROR(get_node()->get_logger(), "Rotation odom is invalid");
+			return controller_interface::return_type::ERROR;
+		}
 
-		orientation.setRPY(0,0, odometry.getYaw());
+		odometry.updateOdom(wheel_feedback, rotate_feedback, time_);
+
+		odometry.returnOdom(odom_msg);
 
 		odom_msg.header.stamp = time_;
 		odom_msg.header.frame_id = params.odom_frame_id;
 		odom_msg.child_frame_id = params.base_frame_id;
-		odom_msg.pose.pose.position.x = odometry.getX();
-		odom_msg.pose.pose.position.y = odometry.getY();
-		odom_msg.pose.pose.orientation.x = orientation.x();
-		odom_msg.pose.pose.orientation.y = orientation.y();
-		odom_msg.pose.pose.orientation.z = orientation.z();
-		odom_msg.pose.pose.orientation.w = orientation.w();
-		odom_msg.twist.twist.linear.x = odometry.getXv();
-		odom_msg.twist.twist.linear.y = odometry.getYv();
-		odom_msg.twist.twist.angular.z = odometry.getAngular();
 
+		odometry.returnTF(tf_odom_msg);
+	
 		tf_odom_msg.header.stamp = time_;
 		tf_odom_msg.header.frame_id = params.odom_frame_id;
 		tf_odom_msg.child_frame_id = params.base_frame_id;
-		tf_odom_msg.transform.translation.x = odometry.getX();
-		tf_odom_msg.transform.translation.y = odometry.getY();
-		tf_odom_msg.transform.rotation.x = orientation.x;
-		tf_odom_msg.transform.ratation.y = orientation.y;
-		tf_odom_msg.transform.ratation.z = orientation.z;
-		tf_odom_msg.transform.ratation.w = orientation.w;
 
 		realtime_odom_pub->publish(odom_msg);
 		realtime_odom_transform_pub->publish(tf_odom_msg);
@@ -148,15 +140,10 @@ namespace OmniControllers{
 			wheel_vel[i][Y] =  angular_cmd * wheel_vec[i][X] + linear_cmd_y;
 		}
 
-		register_wheel_handles[FR].velocity.get().set_value(std::hypot(wheel_vel[FR][X], wheel_vel[FR][Y])/wheel_r);
-		register_wheel_handles[FL].velocity.get().set_value(std::hypot(wheel_vel[FL][X], wheel_vel[FL][Y])/wheel_r);
-		register_wheel_handles[BL].velocity.get().set_value(std::hypot(wheel_vel[BL][X], wheel_vel[BL][Y])/wheel_r);
-		register_wheel_handles[BR].velocity.get().set_value(std::hypot(wheel_vel[BR][X], wheel_vel[BR][Y])/wheel_r);
-
-		register_rotate_handles[FR].position.get().set_value(std::atan2(wheel_vel[FR][Y], wheel_vel[FR][X]));
-		register_rotate_handles[FL].position.get().set_value(std::atan2(wheel_vel[FL][Y], wheel_vel[FL][X]));
-		register_rotate_handles[BL].position.get().set_value(std::atan2(wheel_vel[BL][Y], wheel_vel[BL][X]));
-		register_rotate_handles[BR].position.get().set_value(std::atan2(wheel_vel[BR][Y], wheel_vel[BR][X]));
+		for(uint8_t i=0; i<4; i++){
+			register_wheel_handles[i].velocity.get().set_value(std::hypot(wheel_vel[i][X], wheel_vel[i][Y])/wheel_r);
+			register_rotate_handles[i].position.get().set_value(std::atan2(wheel_vel[i][Y], wheel_vel[i][X]));
+		}
 
 		return controller_interface::return_type::OK;
 	}
@@ -301,12 +288,79 @@ namespace OmniControllers{
 				interface.get_interface_name() == HW_IF_VELOCITY;
 			});
 
+			if(command_handle == command_interface_.end()){
+				RCLCPP_ERROR(get_node()->get_logger(), "Unable to obtain joint command handle for %s", wheel_name.c_str());
+				return controller_interface::CallbackReturn::ERROR;
+			}
+
+			registered_handles_.emplace_back(WheelHandle{std::ref(*state_handle), std::ref(*command_handle)});
 		}
+
+		return controller_interface::CallbackReturn::SUCCESS;
 	}
 
-	controller_interface::CallbackReturn configureRotate(const std::vector<std::string>& wheel_names_, std::vector<RotateHandle>& registered_handles_);
-	bool reset(void);
-	void halt(void);
+	controller_interface::CallbackReturn configureRotate(const std::vector<std::string>& rotate_names_, std::vector<RotateHandle>& registered_handles_){
+		if(rotate_names_.empty()){
+			RCLCPP_ERROR(get_node()->get_logger(), "No wheel name specified");
+			return controller_interface::CallbackReturn::ERROR;
+		}
+
+		registered_handles_.reserve(rotate_names.size());
+		for(const auto& rotate_name : rotate_names_){
+			const auto state_handle = std::find_if(state_interfaces_.cbegin(), state_interfaces_.cend(),
+			[&rotate_name, &interface_name](const auto & interface)
+			{
+				return interface.get_prefix_name() == rotate_name &&
+				interface.get_interface_name() == hardware_interface::HW_IF_VELOCITY;
+			});
+
+			if(state_handle == state_interfaces_.cend){		//state_interfaces_ https://control.ros.org/galactic/doc/api/classhardware__interface_1_1LoanedStateInterface.html
+				RCLCPP_ERROR(get_node()->get_logger(), "Unable to obrain joint state handle for %s", rotate_name.c_str());
+				return controller_interface::CallbackReturn::ERROR;
+			}
+
+			const auto command_handle = std::find_if(command_interfaces_.begin(), command_interfaces_.end(), [&wheel_name](const auto & interface)
+			{
+				return interface.get_prefix_name() == rotate_name &&
+				interface.get_interface_name() == HW_IF_VELOCITY;
+			});
+
+			if(command_handle == command_interface_.end()){
+				RCLCPP_ERROR(get_node()->get_logger(), "Unable to obtain joint command handle for %s", rotate_name.c_str());
+				return controller_interface::CallbackReturn::ERROR;
+			}
+		}
+
+		return controller_interface::CallbackReturn::SUCCESS;
+	}
+	bool reset(void){
+		std::queue<Twist> empty;
+		std::swap(pre_cmd, empty);
+
+		for(uint8_t i=0; i<4; i++){
+			registered_wheel_handles[i].clear();
+			registered_rotate_handles[i].clear();
+		}
+
+		subscriber_is_active = false;
+		vel_sub.reset();
+
+		received_vel_msg_ptr.set(nullptr);
+		is_halted = false;
+
+		return true;
+	}
+
+	void halt(void){
+		const auto halt_wheels = [](auto & wheel_handles){
+			for (const auto & wheel_handle : wheel_handles){
+				wheel_handle.velocity.get().set_value(0.0);
+			}
+		};
+
+		halt_wheels(registered_wheel_handles);
+		halt_wheels(registered_rotate_handles);
+	}
 }
 
 CLASS_LOADER_REGISTER_CLASS(OmniControllers::OmniController, controller_interface::ControllerInterface)
