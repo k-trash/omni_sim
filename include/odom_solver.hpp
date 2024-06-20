@@ -8,7 +8,8 @@
 namespace OmniColtrollers{
 	class OdomSolver{
 		public:
-			OdomSolver(double wheel_d_);
+			OdomSolver(void);
+			void initOdom(double wheel_d_);
 			void updateOdom(std::shared_ptr<double>& wheel_feedback_, std::shared_ptr<double>& rotate_feedback_, rclcpp::Time time_);
 			void returnOdom(std::shared_ptr<geometry_msgs::msg::TwistStamped>& odom_);
 			void returnTF(std::shared_ptr<nav_msgs::msg::Odometry>& odom_);

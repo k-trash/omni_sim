@@ -9,7 +9,11 @@
 #include <tf2/LinearMath/Quaternion.hpp>
 
 namespace OmniControllers{
-	OdomSolver::OdomSolver(double wheel_d_){
+	OdomSolver::OdomSolver(void){
+		;
+	}
+	
+	OdomSolver::initOdom(double wheel_d_){
 		wheel_d = wheel_d_;
 		pre_time = get_node()->get_clock()->now();
 		odometry.pose.pose.positino.x = 0;

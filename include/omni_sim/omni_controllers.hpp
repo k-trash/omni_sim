@@ -48,6 +48,8 @@ namespace OmniControllers{
 			std::vector<std::string> wheel_joint_name;
 			std::vector<std::string> rotate_joint_name;
 
+			OdomSolver.odometry;
+
 			rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub = nullptr;
 			realtime_tools::RealtimePublisher<nav_msgs::msg::Odometry>::SharedPtr realtime_odom_pub = nullptr;
 			rclcpp::Publisher<tf2_msgs::msg::Odometry>::SharedPtr odom_tranform_pub = nullptr;

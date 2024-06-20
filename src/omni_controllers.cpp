@@ -160,7 +160,7 @@ namespace OmniControllers{
 		wheel_r = param.wheel_r;
 		wheel_d = param.wheel_d;
 
-		odometry.setWheelRadius(wheel_r, wheel_d);
+		odometry.initOdom(wheel_d);
 
 		for(uint8_t i=0;i<4;i++){
 			wheel_vec[i][X] = wheel_d * std::cos(M_PI * (i+0.5f) / 2.0f);
