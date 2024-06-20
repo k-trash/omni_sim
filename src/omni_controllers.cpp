@@ -18,7 +18,7 @@
 
 #include <class_loader/register_macro.hpp>
 
-namespace OmniControllers{
+namespace omni_controllers{
 	OmniController::OmniController(void) : controller_interface::ControllerInterface(void){}
 
 	controller_interface::CallbackReturn OmniController::on_init(void){

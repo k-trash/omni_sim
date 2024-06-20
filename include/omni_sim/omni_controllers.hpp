@@ -16,7 +16,7 @@
 
 #include "omni_controllers_parameters.hpp"
 
-namespace OmniControllers{
+namespace omni_controllers{
 	class OmniController : public controller_interface::ControllerInterface{
 		public:
 			explicit OmniController(void);

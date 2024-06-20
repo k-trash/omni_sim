@@ -8,7 +8,7 @@
 #include <nav_msgs/msg/odometry.hpp>
 #include <tf2/LinearMath/Quaternion.hpp>
 
-namespace OmniControllers{
+namespace omni_controllers{
 	OdomSolver::OdomSolver(void){
 		;
 	}

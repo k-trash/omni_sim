@@ -5,7 +5,7 @@
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <nav_msgs/msg/odoemtry.hpp>
 
-namespace OmniColtrollers{
+namespace omni_coltrollers{
 	class OdomSolver{
 		public:
 			OdomSolver(void);
