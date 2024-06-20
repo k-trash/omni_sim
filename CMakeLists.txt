@@ -10,8 +10,16 @@ find_package(ament_cmake_auto REQUIRED)
 
 ament_auto_find_build_dependencies()
 
-ament_auto_add_library(omni_control src/omni_robot_controller.cpp)
-rclcpp_components_register_nodes(omni_control "OmniRobotController::OmniControl")
+generate_parameter_library(omni_controllers_param
+  config/omni_controller_param.yaml
+)
+
+ament_auto_add_library(omni_controllers
+  src/omni_controllers.cpp
+  src/odom_colver.cpp
+)
+
+pluginlib_export_plugin_description_file(controller_interface omni_controller_plugin.xml)
 
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}
