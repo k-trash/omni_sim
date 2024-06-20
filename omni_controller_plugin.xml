@@ -1,0 +1,3 @@
+<library path="OmniControllers">
+	<class name="OmniControllers/OmniControl" type="OmniControllers::omni_control" base_class_type="controller_interface::ControllerInterface">
+</library>
