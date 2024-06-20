@@ -1,0 +1,42 @@
+omni_controllers:
+  wheel_name: {
+    type: string_array,
+    default_value: [],
+    validation: {
+      not_empty<>: []
+    }
+  }
+
+  rotate_name: {
+    type: string_array,
+    default_value: [],
+    validation: {
+      not_empty<>: []
+    }
+  }
+
+  wheel_d: {
+    type: double,
+    default_value: 0.3,
+    validation: {
+      gt<>: [0.0]
+    }
+  }
+
+  wheel_r: {
+    type: double,
+    default_value: 0.05,
+    validation: {
+      gt<>: [0.0]
+    }
+  }
+
+  odom_frame_id: {
+    type: string,
+    defalut_value: "odom"
+  }
+
+  base_frame_id: {
+    type: string,
+    default_value: "base_link"
+  }
