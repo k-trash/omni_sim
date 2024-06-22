@@ -128,9 +128,9 @@ namespace omni_controllers{
 
 		odometry.returnTF(tf_odom_msg);
 	
-		tf_odom_msg.header.stamp = time_;
-		tf_odom_msg.header.frame_id = params.odom_frame_id;
-		tf_odom_msg.child_frame_id = params.base_frame_id;
+		tf_odom_msg.transforms[0].header.stamp = time_;
+		tf_odom_msg.transforms[0].header.frame_id = params.odom_frame_id;
+		tf_odom_msg.transforms[0].child_frame_id = params.base_frame_id;
 
 		realtime_odom_pub->publish(odom_msg);
 		realtime_odom_transform_pub->publish(tf_odom_msg);

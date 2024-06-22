@@ -14,7 +14,7 @@
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 
-#include "omni_controllers_parameters.hpp"
+#include "omni_controllers_param.hpp"
 
 namespace omni_controllers{
 	class OmniController : public controller_interface::ControllerInterface{
@@ -52,7 +52,7 @@ namespace omni_controllers{
 
 			rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub = nullptr;
 			realtime_tools::RealtimePublisher<nav_msgs::msg::Odometry>::SharedPtr realtime_odom_pub = nullptr;
-			rclcpp::Publisher<tf2_msgs::msg::Odometry>::SharedPtr odom_tranform_pub = nullptr;
+			rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr odom_tranform_pub = nullptr;
 			realtime_tools::RealtimePublisher<tf2_msgs::msg::TFMessage>::SharedPtr realtime_odom_transform_pub = nullptr;
 			rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr vel_sub = nullptr;
 

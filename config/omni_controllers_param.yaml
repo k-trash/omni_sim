@@ -33,7 +33,7 @@ omni_controllers:
 
   odom_frame_id: {
     type: string,
-    defalut_value: "odom"
+    default_value: "odom"
   }
 
   base_frame_id: {

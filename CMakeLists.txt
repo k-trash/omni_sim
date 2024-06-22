@@ -11,15 +11,23 @@ find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
 generate_parameter_library(omni_controllers_param
-  config/omni_controller_param.yaml
+  config/omni_controllers_param.yaml
 )
 
 ament_auto_add_library(omni_controllers
   src/omni_controllers.cpp
-  src/odom_colver.cpp
+  src/odom_solver.cpp
+  omni_controllers_param
 )
 
 pluginlib_export_plugin_description_file(controller_interface omni_controller_plugin.xml)
+
+install(TARGETS omni_controllers omni_controllers_param
+  EXPORT export_omni_controllers
+  RUNTIME DESTINATION bin
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+)
 
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}

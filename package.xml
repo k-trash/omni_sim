@@ -15,7 +15,16 @@
 	<depend>std_msgs</depend>
 	<depend>geometry_msgs</depend>
 	<depend>nav_msgs</depend>
+	<depend>rclcpp_lifecycle</depend>
+	<depend>generate_parameter_library</depend>
+	<depend>parameter_traits</depend>
+	<depend>controller_interface</depend>
+	<depend>hardware_interface</depend>
+	<depend>plugin_lib</depend>
+	<depend>rclcpp_utils</depend>
+	<depend>realtime_tools</depend>
 	<depend>tf2</depend>
+	<depend>tf2_msgs</depend>
 
 	<test_depend>ament_lint_auto</test_depend>
 	<test_depend>ament_lint_common</test_depend>
