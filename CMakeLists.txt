@@ -40,8 +40,14 @@ target_include_directories(omni_controllers PUBLIC
 )
 target_link_libraries(omni_controllers PUBLIC omni_controllers_param)
 ament_target_dependencies(omni_controllers PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
+target_compile_definitions(omni_controllers PRIVATE "OMNI_CONTROLLERS_BUILDING_DLL")
 
 pluginlib_export_plugin_description_file(controller_interface omni_controller_plugin.xml)
+
+install(
+  DIRECTORY include/
+  DESTINATION include/omni_sim
+)
 
 install(TARGETS omni_controllers omni_controllers_param
   EXPORT export_omni_controllers

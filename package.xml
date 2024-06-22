@@ -19,6 +19,7 @@
 	<depend>rclcpp_lifecycle</depend>
 	<depend>parameter_traits</depend>
 	<depend>controller_interface</depend>
+	<depend>controller_manager</depend>
 	<depend>hardware_interface</depend>
 	<depend>plugin_lib</depend>
 	<depend>rclcpp_utils</depend>
