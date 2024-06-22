@@ -37,7 +37,7 @@ namespace omni_controllers{
 		}
 	}
 
-	void OdomSolver::updateOdom(std::shared_ptr<double>& wheel_feedback_, std::shared_ptr<double>& rotate_feedback_, rclcpp::Time time_){
+	void OdomSolver::updateOdom(std::shared_ptr<double[]>& wheel_feedback_, std::shared_ptr<double[]>& rotate_feedback_, rclcpp::Time time_){
 		double vx[4] = {0};
 		double vy[4] = {0};
 		double time_d;
@@ -77,16 +77,16 @@ namespace omni_controllers{
 		pre_time = time_;
 	}
 
-	void OdomSolver::returnOdom(std::shared_ptr<nav_msgs::msg::Odometry>& odom_){
-		*odom_ = odometry;
+	void OdomSolver::returnOdom(nav_msgs::msg::Odometry& odom_){
+		odom_ = odometry;
 	}
 
-	void OdomSolver::returnTF(std::shared_ptr<tf2_msgs::msg::TFMessage>& odom_){
-		odom_->transforms[0].transform.translation.x = odometry.pose.pose.position.x;
-		odom_->transforms[0].transform.translation.y = odometry.pose.pose.position.y;
-		odom_->transforms[0].transform.rotation.x = odometry.pose.pose.orientation.x;
-		odom_->transforms[0].transform.rotation.y = odometry.pose.pose.orientation.y;
-		odom_->transforms[0].transform.rotation.z = odometry.pose.pose.orientation.z;
-		odom_->transforms[0].transform.rotation.w = odometry.pose.pose.orientation.w;
+	void OdomSolver::returnTF(tf2_msgs::msg::TFMessage& odom_){
+		odom_.transforms[0].transform.translation.x = odometry.pose.pose.position.x;
+		odom_.transforms[0].transform.translation.y = odometry.pose.pose.position.y;
+		odom_.transforms[0].transform.rotation.x = odometry.pose.pose.orientation.x;
+		odom_.transforms[0].transform.rotation.y = odometry.pose.pose.orientation.y;
+		odom_.transforms[0].transform.rotation.z = odometry.pose.pose.orientation.z;
+		odom_.transforms[0].transform.rotation.w = odometry.pose.pose.orientation.w;
 	}
 }

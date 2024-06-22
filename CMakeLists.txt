@@ -5,6 +5,21 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+set(THIS_PACKAGE_INCLUDE_DEPENDS
+  controller_interface
+  generate_parameter_library
+  geometry_msgs
+  hardware_interface
+  nav_msgs
+  pluginlib
+  rclcpp
+  rclcpp_lifecycle
+  rcpputils
+  realtime_tools
+  tf2
+  tf2_msgs
+)
+
 # find dependencies
 find_package(ament_cmake_auto REQUIRED)
 
@@ -14,11 +29,17 @@ generate_parameter_library(omni_controllers_param
   config/omni_controllers_param.yaml
 )
 
-ament_auto_add_library(omni_controllers
+add_library(omni_controllers
   src/omni_controllers.cpp
   src/odom_solver.cpp
-  omni_controllers_param
 )
+
+target_include_directories(omni_controllers PUBLIC
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/omni_controllers_param>
+)
+target_link_libraries(omni_controllers PUBLIC omni_controllers_param)
+ament_target_dependencies(omni_controllers PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
 pluginlib_export_plugin_description_file(controller_interface omni_controller_plugin.xml)
 
@@ -53,4 +74,5 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+ament_export_include_directories(include)
 ament_auto_package()

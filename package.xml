@@ -8,6 +8,7 @@
 	<license>Apache-2.0</license>
 	
 	<buildtool_depend>ament_cmake_ros</buildtool_depend>
+	<build_depend>generate_parameter_library</build_depend>
 
 	<depend>ament_cmake_auto</depend>
 	<depend>rclcpp</depend>
@@ -16,7 +17,6 @@
 	<depend>geometry_msgs</depend>
 	<depend>nav_msgs</depend>
 	<depend>rclcpp_lifecycle</depend>
-	<depend>generate_parameter_library</depend>
 	<depend>parameter_traits</depend>
 	<depend>controller_interface</depend>
 	<depend>hardware_interface</depend>
@@ -25,6 +25,7 @@
 	<depend>realtime_tools</depend>
 	<depend>tf2</depend>
 	<depend>tf2_msgs</depend>
+	<depend>omni_controllers_param</depend>
 
 	<test_depend>ament_lint_auto</test_depend>
 	<test_depend>ament_lint_common</test_depend>

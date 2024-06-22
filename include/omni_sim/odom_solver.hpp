@@ -12,9 +12,9 @@ namespace omni_controllers{
 		public:
 			OdomSolver(void);
 			void initOdom(double wheel_d_);
-			void updateOdom(std::shared_ptr<double>& wheel_feedback_, std::shared_ptr<double>& rotate_feedback_, rclcpp::Time time_);
-			void returnOdom(std::shared_ptr<nav_msgs::msg::Odometry>& odom_);
-			void returnTF(std::shared_ptr<tf2_msgs::msg::TFMessage>& odom_);
+			void updateOdom(std::shared_ptr<double[]>& wheel_feedback_, std::shared_ptr<double[]>& rotate_feedback_, rclcpp::Time time_);
+			void returnOdom(nav_msgs::msg::Odometry& odom_);
+			void returnTF(tf2_msgs::msg::TFMessage& odom_);
 		private:
 			rclcpp::Time pre_time;
 			nav_msgs::msg::Odometry odometry;
