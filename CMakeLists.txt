@@ -13,6 +13,9 @@ ament_auto_find_build_dependencies()
 ament_auto_add_library(omni_control src/omni_robot_controller.cpp)
 rclcpp_components_register_nodes(omni_control "OmniRobotController::OmniControl")
 
+ament_auto_add_library(odom_tf_converter src/odom_tf_converter.cpp)
+rclcpp_components_register_nodes(odom_tf_converter "OmniRobotController::OdomToTf")
+
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}
 )
