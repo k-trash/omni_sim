@@ -61,5 +61,14 @@
 		<plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
 			<parameters>$(find omni_sim)/config/omni_sim.yaml</parameters>
 		</plugin>
+		<plugin filename="libgazebo_ros_p3d.so" name="p3d_base_controller">
+			<ros>
+				<remapping>odom:=odom</remapping>
+			</ros>
+			<frame_name>world</frame_name>
+			<body_name>base_footprint</body_name>
+			<update_rate>10.0</update_rate>
+			<always_on>true</always_on>
+		</plugin>
 	</gazebo>
 </robot>
