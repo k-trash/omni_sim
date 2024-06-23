@@ -81,4 +81,6 @@ if(BUILD_TESTING)
 endif()
 
 ament_export_include_directories(include)
-ament_auto_package()
+ament_export_targets(export_omni_controllers HAS_LIBRARY_TARGET)
+ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
+ament_package()
