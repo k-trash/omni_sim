@@ -46,7 +46,7 @@ pluginlib_export_plugin_description_file(controller_interface omni_controller_pl
 
 install(
   DIRECTORY include/
-  DESTINATION include/omni_sim
+  DESTINATION include/
 )
 
 install(TARGETS omni_controllers omni_controllers_param
