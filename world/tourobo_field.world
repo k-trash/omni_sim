@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <world name="tourobo">
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <include>
+      <name>tourobo_field</name>
+      <uri>model://tourobo_field</uri>
+      <static>true</static>
+      <pose>-1.0 -1.0 0 1.5708 0 0</pose>
+    </include>
+
+  </world>
+</sdf>

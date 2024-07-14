@@ -16,15 +16,12 @@ rclcpp_components_register_nodes(omni_control "OmniRobotController::OmniControl"
 ament_auto_add_library(odom_tf_converter src/odom_tf_converter.cpp)
 rclcpp_components_register_nodes(odom_tf_converter "OmniRobotController::OdomToTf")
 
-install(DIRECTORY launch
-  DESTINATION share/${PROJECT_NAME}
-)
-
-install(DIRECTORY config
-  DESTINATION share/${PROJECT_NAME}
-)
-
-install(DIRECTORY xacro
+install(DIRECTORY 
+  launch
+  config
+  xacro
+  sdf
+  world
   DESTINATION share/${PROJECT_NAME}
 )
 
