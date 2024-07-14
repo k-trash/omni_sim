@@ -32,7 +32,7 @@
 
 	<xacro:macro name="lidar_macro" params="parent prefix xyz rpy">
 		<joint name="${prefix}_joint" type="fixed">
-			<origin xyz="0 0.2 -0.04" rpy="0 0 0"/>
+			<origin xyz="${xyz}" rpy="${rpy}"/>
 			<parent link="${parent}"/>
 			<child link="${prefix}_link"/>
 		</joint>

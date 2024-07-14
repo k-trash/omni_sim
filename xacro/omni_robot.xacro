@@ -38,7 +38,7 @@
 	</link>
 
 	<xacro:imu_macro prefix="imu" parent="body_link" xyz="0 0 0" rpy="0 0 0"/>
-	<xacro:lidar_macro prefix="laser" parent="body_link" xyz="0 0.2 -0.04" rpy="0 0 0"/>
+	<xacro:lidar_macro prefix="laser" parent="body_link" xyz="0 0.2 -0.10" rpy="0 0 0"/>
 
 	<xacro:wheel_macro prefix="fr_wheel" parent="body_link" xyz="0.2 0.2 -0.06"/>
 	<xacro:wheel_macro prefix="fl_wheel" parent="body_link" xyz="-0.2 0.2 -0.06"/>

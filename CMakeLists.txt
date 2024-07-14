@@ -20,7 +20,6 @@ install(DIRECTORY
   launch
   config
   xacro
-  sdf
   world
   DESTINATION share/${PROJECT_NAME}
 )
