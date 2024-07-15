@@ -1,12 +1,13 @@
-cmake_minimum_required(VERSION 3.8)
-project(omni_sim)
+cmake_minimum_required(VERSION 3.16)
+project(omni_sim LANGUAGES CXX)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+  add_compile_options(-Wall -Wextra -Werror=conversion -Werror=return-type -Werror=shadow -Werror=format)
 endif()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   controller_interface
+  controller_manager
   generate_parameter_library
   geometry_msgs
   hardware_interface
@@ -16,8 +17,11 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   rclcpp_lifecycle
   rcpputils
   realtime_tools
+  class_loader
   tf2
   tf2_msgs
+  yaml-cpp
+  yaml_cpp_vendor
 )
 
 # find dependencies
@@ -25,11 +29,14 @@ find_package(ament_cmake_auto REQUIRED)
 
 ament_auto_find_build_dependencies()
 
+add_compile_definitions(RCPPUTILS_VERSION_MAJOR=${rcpputils_VERSION_MAJOR})
+add_compile_definitions(RCPPUTILS_VERSION_MINOR=${rcpputils_VERSION_MINOR})
+
 generate_parameter_library(omni_controllers_param
   config/omni_controllers_param.yaml
 )
 
-add_library(omni_controllers
+add_library(omni_controllers SHARED
   src/omni_controllers.cpp
   src/odom_solver.cpp
 )
@@ -83,4 +90,4 @@ endif()
 ament_export_include_directories(include)
 ament_export_targets(export_omni_controllers HAS_LIBRARY_TARGET)
 ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
-ament_package()
+ament_auto_package()

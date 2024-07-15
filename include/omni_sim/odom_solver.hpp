@@ -18,7 +18,7 @@ namespace omni_controllers{
 		private:
 			rclcpp::Time pre_time;
 			nav_msgs::msg::Odometry odometry;
-			tf2::Quaternion orientation;
+			tf2::Quaternion orient;
 			double wheel_vec[4][2];
 			double wheel_d;
 			double yaw;

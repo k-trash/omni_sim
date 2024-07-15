@@ -41,7 +41,6 @@ namespace omni_controllers{
 		double vx[4] = {0};
 		double vy[4] = {0};
 		double time_d;
-		tf2::Quaternion orientation;
 
 		time_d = time_.seconds() - pre_time.seconds();
 
@@ -67,12 +66,12 @@ namespace omni_controllers{
 		odometry.pose.pose.position.y += std::sin(yaw) * odometry.twist.twist.linear.x * time_d + std::cos(yaw) * odometry.twist.twist.linear.y * time_d;
 		yaw += odometry.twist.twist.angular.z * time_d;
 
-		orientation.setRPY(0,0, yaw);
+		orient.setRPY(0,0, yaw);
 
-		odometry.pose.pose.orientation.x = orientation.x();
-		odometry.pose.pose.orientation.y = orientation.y();
-		odometry.pose.pose.orientation.z = orientation.z();
-		odometry.pose.pose.orientation.w = orientation.w();
+		odometry.pose.pose.orientation.x = orient.x();
+		odometry.pose.pose.orientation.y = orient.y();
+		odometry.pose.pose.orientation.z = orient.z();
+		odometry.pose.pose.orientation.w = orient.w();
 
 		pre_time = time_;
 	}

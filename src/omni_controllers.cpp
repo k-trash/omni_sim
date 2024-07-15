@@ -383,4 +383,4 @@ namespace omni_controllers{
 #include <pluginlib/class_list_macros.hpp>
 
 PLUGINLIB_EXPORT_CLASS(omni_controllers::OmniController, controller_interface::ControllerInterface)
-//CLASS_LOADER_REGISTER_CLASS(omni_controllers::OmniController, controller_interface::ControllerInterface)
+CLASS_LOADER_REGISTER_CLASS(omni_controllers::OmniController, controller_interface::ControllerInterface)
