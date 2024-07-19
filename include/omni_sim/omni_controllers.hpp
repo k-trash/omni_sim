@@ -15,12 +15,14 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <omni_sim/odom_solver.hpp>
 
 #include "omni_controllers_param.hpp"
 
 namespace omni_controllers{
+extern "C"{
 	class OmniController : public controller_interface::ControllerInterface{
 		public:
 			explicit OmniController(void);
@@ -68,7 +70,7 @@ namespace omni_controllers{
 			};
 
 			enum Coordinate{
-				X, Y
+				X=0, Y
 			};
 
 			std::shared_ptr<ParamListener> param_listener;
@@ -88,6 +90,8 @@ namespace omni_controllers{
 			bool reset(void);
 			void halt(void);
 	};
+}
+
 }
 
 #endif

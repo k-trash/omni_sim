@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.16)
-project(omni_sim LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.8)
+project(omni_sim)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
   add_compile_options(-Wall -Wextra -Werror=conversion -Werror=return-type -Werror=shadow -Werror=format)
@@ -7,7 +7,6 @@ endif()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   controller_interface
-  controller_manager
   generate_parameter_library
   geometry_msgs
   hardware_interface
@@ -25,9 +24,15 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
 )
 
 # find dependencies
-find_package(ament_cmake_auto REQUIRED)
+find_package(ament_cmake REQUIRED)
+find_package(parameter_traits REQUIRED)
+find_package(backward_ros REQUIRED)
+find_package(controller_manager REQUIRED)
+foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
+  find_package(${Dependency} REQUIRED)
+endforeach()
 
-ament_auto_find_build_dependencies()
+#ament_auto_find_build_dependencies()
 
 add_compile_definitions(RCPPUTILS_VERSION_MAJOR=${rcpputils_VERSION_MAJOR})
 add_compile_definitions(RCPPUTILS_VERSION_MINOR=${rcpputils_VERSION_MINOR})
@@ -41,9 +46,10 @@ add_library(omni_controllers SHARED
   src/odom_solver.cpp
 )
 
+#target_compile_features(omni_controllers PUBLIC cxx_std_17)
 target_include_directories(omni_controllers PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/omni_controllers_param>
+  $<INSTALL_INTERFACE:include/omni_controllers>
 )
 target_link_libraries(omni_controllers PUBLIC omni_controllers_param)
 ament_target_dependencies(omni_controllers PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
@@ -63,15 +69,10 @@ install(TARGETS omni_controllers omni_controllers_param
   LIBRARY DESTINATION lib
 )
 
-install(DIRECTORY launch
-  DESTINATION share/${PROJECT_NAME}
-)
-
-install(DIRECTORY config
-  DESTINATION share/${PROJECT_NAME}
-)
-
-install(DIRECTORY xacro
+install(DIRECTORY
+  launch
+  config
+  xacro
   DESTINATION share/${PROJECT_NAME}
 )
 
@@ -87,7 +88,6 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-ament_export_include_directories(include)
 ament_export_targets(export_omni_controllers HAS_LIBRARY_TARGET)
 ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
-ament_auto_package()
+ament_package()

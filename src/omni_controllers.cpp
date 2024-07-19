@@ -23,8 +23,13 @@
 
 #include <class_loader/register_macro.hpp>
 
+
 namespace omni_controllers{
 	OmniController::OmniController(void) : controller_interface::ControllerInterface(){}
+
+	OmniController::~OmniController(void){
+		;
+	}
 
 	controller_interface::CallbackReturn OmniController::on_init(void){
 		try{
@@ -43,10 +48,23 @@ namespace omni_controllers{
 		std::vector<std::string> conf_names;
 			
 		for(const auto& joint_name: params.wheel_name){
-			conf_names.push_back(joint_name + "/" +  hardware_interface::HW_IF_POSITION);
+			conf_names.push_back(joint_name + "/" +  hardware_interface::HW_IF_VELOCITY);
 		}
 		for(const auto& joint_name: params.rotate_name){
-			conf_names.push_back(joint_name + "/" + hardware_interface::HW_IF_VELOCITY);
+			conf_names.push_back(joint_name + "/" + hardware_interface::HW_IF_POSITION);
+		}
+
+		return {controller_interface::interface_configuration_type::INDIVIDUAL, conf_names};
+	}
+	
+	controller_interface::InterfaceConfiguration OmniController::state_interface_configuration(void) const {
+		std::vector<std::string> conf_names;
+			
+		for(const auto& joint_name: params.wheel_name){
+			conf_names.push_back(joint_name + "/" +  hardware_interface::HW_IF_VELOCITY);
+		}
+		for(const auto& joint_name: params.rotate_name){
+			conf_names.push_back(joint_name + "/" + hardware_interface::HW_IF_POSITION);
 		}
 
 		return {controller_interface::interface_configuration_type::INDIVIDUAL, conf_names};
@@ -68,6 +86,7 @@ namespace omni_controllers{
 		auto logger = get_node()->get_logger();
 
 		wheel_r = params.wheel_r;
+		tf_odom_msg.transforms.resize(1);
 
 		if(get_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE){
 			if(!is_halted){
@@ -128,9 +147,9 @@ namespace omni_controllers{
 
 		odometry.returnTF(tf_odom_msg);
 	
-		tf_odom_msg.transforms[0].header.stamp = time_;
-		tf_odom_msg.transforms[0].header.frame_id = params.odom_frame_id;
-		tf_odom_msg.transforms[0].child_frame_id = params.base_frame_id;
+		tf_odom_msg.transforms.front().header.stamp = time_;
+		tf_odom_msg.transforms.front().header.frame_id = params.odom_frame_id;
+		tf_odom_msg.transforms.front().child_frame_id = params.base_frame_id;
 
 		realtime_odom_pub->unlockAndPublish();
 		realtime_odom_transform_pub->unlockAndPublish();
@@ -144,7 +163,7 @@ namespace omni_controllers{
 			registered_wheel_handles[i].velocity.get().set_value(std::hypot(wheel_vel[i][X], wheel_vel[i][Y])/wheel_r);
 			registered_rotate_handles[i].position.get().set_value(std::atan2(wheel_vel[i][Y], wheel_vel[i][X]));
 		}
-
+	
 		return controller_interface::return_type::OK;
 	}
 
@@ -163,8 +182,8 @@ namespace omni_controllers{
 		odometry.initOdom(wheel_d);
 
 		for(uint8_t i=0;i<4;i++){
-			wheel_vec[i][X] = wheel_d * std::cos(M_PI * (i+0.5f) / 2.0f);
-			wheel_vec[i][Y] = wheel_d * std::sin(M_PI * (i+0.5f) / 2.0f);
+			wheel_vec[i][Coordinate::X] = wheel_d * std::cos(M_PI * (i+0.5f) / 2.0f);
+			wheel_vec[i][Coordinate::Y] = wheel_d * std::sin(M_PI * (i+0.5f) / 2.0f);
 		}
 
 		cmd_vel_timeout = std::chrono::milliseconds{static_cast<int>(params.cmd_vel_timeout * 1000)};
@@ -218,7 +237,7 @@ namespace omni_controllers{
 		is_halted = false;
 		subscriber_is_active = true;
 
-		RCLCPP_DEBUG(get_node()->get_logger(), "Subscriber and publisher are now active");
+		RCLCPP_INFO(get_node()->get_logger(), "Subscriber and publisher are now active");
 
 		return controller_interface::CallbackReturn::SUCCESS;
 	}
@@ -323,7 +342,7 @@ namespace omni_controllers{
 			[&rotate_name, &interface_name](const auto & interface)
 			{
 				return interface.get_prefix_name() == rotate_name &&
-				interface.get_interface_name() == hardware_interface::HW_IF_VELOCITY;
+				interface.get_interface_name() == hardware_interface::HW_IF_POSITION;
 			});
 
 			if(state_handle == state_interfaces_.cend()){		//state_interfaces_ https://control.ros.org/galactic/doc/api/classhardware__interface_1_1LoanedStateInterface.html
@@ -334,13 +353,15 @@ namespace omni_controllers{
 			const auto command_handle = std::find_if(command_interfaces_.begin(), command_interfaces_.end(), [&rotate_name](const auto & interface)
 			{
 				return interface.get_prefix_name() == rotate_name &&
-				interface.get_interface_name() == hardware_interface::HW_IF_VELOCITY;
+				interface.get_interface_name() == hardware_interface::HW_IF_POSITION;
 			});
 
 			if(command_handle == command_interfaces_.end()){
 				RCLCPP_ERROR(get_node()->get_logger(), "Unable to obtain joint command handle for %s", rotate_name.c_str());
 				return controller_interface::CallbackReturn::ERROR;
 			}
+
+			registered_handles_.emplace_back(RotateHandle{std::ref(*state_handle), std::ref(*command_handle)});
 		}
 
 		return controller_interface::CallbackReturn::SUCCESS;
@@ -382,5 +403,4 @@ namespace omni_controllers{
 
 #include <pluginlib/class_list_macros.hpp>
 
-PLUGINLIB_EXPORT_CLASS(omni_controllers::OmniController, controller_interface::ControllerInterface)
 CLASS_LOADER_REGISTER_CLASS(omni_controllers::OmniController, controller_interface::ControllerInterface)

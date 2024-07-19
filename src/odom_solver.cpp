@@ -77,15 +77,16 @@ namespace omni_controllers{
 	}
 
 	void OdomSolver::returnOdom(nav_msgs::msg::Odometry& odom_){
-		odom_ = odometry;
+		odom_.pose = odometry.pose;
+		odom_.twist = odometry.twist;
 	}
 
 	void OdomSolver::returnTF(tf2_msgs::msg::TFMessage& odom_){
-		odom_.transforms[0].transform.translation.x = odometry.pose.pose.position.x;
-		odom_.transforms[0].transform.translation.y = odometry.pose.pose.position.y;
-		odom_.transforms[0].transform.rotation.x = odometry.pose.pose.orientation.x;
-		odom_.transforms[0].transform.rotation.y = odometry.pose.pose.orientation.y;
-		odom_.transforms[0].transform.rotation.z = odometry.pose.pose.orientation.z;
-		odom_.transforms[0].transform.rotation.w = odometry.pose.pose.orientation.w;
+		odom_.transforms.front().transform.translation.x = odometry.pose.pose.position.x;
+		odom_.transforms.front().transform.translation.y = odometry.pose.pose.position.y;
+		odom_.transforms.front().transform.rotation.x = odometry.pose.pose.orientation.x;
+		odom_.transforms.front().transform.rotation.y = odometry.pose.pose.orientation.y;
+		odom_.transforms.front().transform.rotation.z = odometry.pose.pose.orientation.z;
+		odom_.transforms.front().transform.rotation.w = odometry.pose.pose.orientation.w;
 	}
 }

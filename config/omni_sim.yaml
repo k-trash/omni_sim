@@ -26,6 +26,7 @@ omni_controllers:
       - br_wheel_wheel_joint
 
     wheel_d: 0.2828
+    wheel_r: 0.05
 
 imu_sensor_broadcaster:
   ros__parameters:

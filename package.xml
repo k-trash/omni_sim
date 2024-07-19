@@ -4,13 +4,12 @@
 	<name>omni_sim</name>
 	<version>0.0.0</version>
 	<description>TODO: Package description</description>
-	<maintainer email="d.kintou@gmail.com">k-trash</maintainer>
+	<maintainer email="k.trash.t@gmail.com">k-trash</maintainer>
 	<license>Apache-2.0</license>
 	
-	<buildtool_depend>ament_cmake_ros</buildtool_depend>
+	<buildtool_depend>ament_cmake</buildtool_depend>
 	<build_depend>generate_parameter_library</build_depend>
 
-	<depend>ament_cmake_auto</depend>
 	<depend>backward_ros</depend>
 	<depend>rclcpp</depend>
 	<depend>rclcpp_components</depend>
