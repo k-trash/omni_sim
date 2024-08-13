@@ -163,6 +163,8 @@ namespace omni_controllers{
 			registered_wheel_handles[i].velocity.get().set_value(std::hypot(wheel_vel[i][X], wheel_vel[i][Y])/wheel_r);
 			registered_rotate_handles[i].position.get().set_value(std::atan2(wheel_vel[i][Y], wheel_vel[i][X]));
 		}
+
+		RCLCPP_DEBUG(get_node()->get_logger(), "lf_wheel : %lf", registered_wheel_handles[0].velocity.get().get_value());
 	
 		return controller_interface::return_type::OK;
 	}
@@ -275,6 +277,7 @@ namespace omni_controllers{
 	}
 
 	controller_interface::CallbackReturn OmniController::on_shutdown(const rclcpp_lifecycle::State& previous_state){
+		RCLCPP_INFO(get_node()->get_logger(), "Node now shutdown");
 		return controller_interface::CallbackReturn::SUCCESS;
 	}
 
