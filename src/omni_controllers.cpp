@@ -94,6 +94,8 @@ namespace omni_controllers{
 				is_halted = true;
 			}
 
+			RCLCPP_DEBUG(logger, "state is inactive.");
+
 			return controller_interface::return_type::OK;
 		}
 
@@ -106,11 +108,12 @@ namespace omni_controllers{
 
 		const auto last_cmd_age = time_ - last_cmd_msg->header.stamp;
 		
-		if(last_cmd_age > cmd_vel_timeout){
+	/*	if(last_cmd_age > cmd_vel_timeout){
+			RCLCPP_INFO(logger, "vel timeout %lf", last_cmd_age);
 			last_cmd_msg->twist.linear.x = 0.0f;
 			last_cmd_msg->twist.linear.y = 0.0f;
 			last_cmd_msg->twist.angular.z = 0.0f;
-		}
+		}*/
 
 		cmd = *last_cmd_msg;
 		linear_cmd_x = cmd.twist.linear.x;
@@ -164,7 +167,7 @@ namespace omni_controllers{
 			registered_rotate_handles[i].position.get().set_value(std::atan2(wheel_vel[i][Y], wheel_vel[i][X]));
 		}
 
-		RCLCPP_DEBUG(get_node()->get_logger(), "lf_wheel : %lf", registered_wheel_handles[0].velocity.get().get_value());
+		RCLCPP_INFO(get_node()->get_logger(), "lf_wheel : %lf", registered_wheel_handles[0].velocity.get().get_value());
 	
 		return controller_interface::return_type::OK;
 	}
@@ -206,6 +209,8 @@ namespace omni_controllers{
 		realtime_odom_transform_pub = std::make_shared<realtime_tools::RealtimePublisher<tf2_msgs::msg::TFMessage> >(odom_transform_pub);
 
 		pre_update_timestamp = get_node()->get_clock()->now();
+
+		RCLCPP_INFO(get_node()->get_logger(), "configuration succeeded");
 
 		return controller_interface::CallbackReturn::SUCCESS;
 	}
@@ -255,6 +260,8 @@ namespace omni_controllers{
 		registered_wheel_handles.clear();
 		registered_rotate_handles.clear();
 
+		RCLCPP_INFO(get_node()->get_logger(), "Subscriber and publisher are now deactivated");
+
 		return controller_interface::CallbackReturn::SUCCESS;
 	}
 
@@ -265,6 +272,8 @@ namespace omni_controllers{
 
 		receive_vel_msg_ptr.set(std::make_shared<geometry_msgs::msg::TwistStamped>());
 
+		RCLCPP_INFO(get_node()->get_logger(), "node clean up");
+
 		return controller_interface::CallbackReturn::SUCCESS;
 	}
 
@@ -272,6 +281,8 @@ namespace omni_controllers{
 		if(!reset()){
 			return controller_interface::CallbackReturn::ERROR;
 		}
+
+		RCLCPP_INFO(get_node()->get_logger(), "node on error");
 
 		return controller_interface::CallbackReturn::SUCCESS;
 	}
