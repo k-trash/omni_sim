@@ -60,7 +60,7 @@ extern "C"{
 			std::shared_ptr<realtime_tools::RealtimePublisher<nav_msgs::msg::Odometry> > realtime_odom_pub = nullptr;
 			rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr odom_transform_pub = nullptr;
 			std::shared_ptr<realtime_tools::RealtimePublisher<tf2_msgs::msg::TFMessage> > realtime_odom_transform_pub = nullptr;
-			rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr vel_sub = nullptr;
+			rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr vel_sub = nullptr;
 
 			realtime_tools::RealtimeBox<std::shared_ptr<geometry_msgs::msg::TwistStamped> > receive_vel_msg_ptr{nullptr};
 			std::queue<geometry_msgs::msg::TwistStamped> pre_cmd;
@@ -84,7 +84,7 @@ extern "C"{
 
 			double wheel_vec[4][2];
 
-			void velCallback(const std::shared_ptr<geometry_msgs::msg::TwistStamped> cmd_vel_);
+			void velCallback(const geometry_msgs::msg::Twist::SharedPtr cmd_vel_);
 			controller_interface::CallbackReturn configureWheel(const std::vector<std::string>& wheel_names_, std::vector<WheelHandle>& registered_handles_);
 			controller_interface::CallbackReturn configureRotate(const std::vector<std::string>& rotate_names_, std::vector<RotateHandle>& registered_handles_);
 			bool reset(void);

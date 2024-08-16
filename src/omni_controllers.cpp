@@ -108,12 +108,11 @@ namespace omni_controllers{
 
 		const auto last_cmd_age = time_ - last_cmd_msg->header.stamp;
 		
-	/*	if(last_cmd_age > cmd_vel_timeout){
-			RCLCPP_INFO(logger, "vel timeout %lf", last_cmd_age);
+		if(last_cmd_age > cmd_vel_timeout){
 			last_cmd_msg->twist.linear.x = 0.0f;
 			last_cmd_msg->twist.linear.y = 0.0f;
 			last_cmd_msg->twist.angular.z = 0.0f;
-		}*/
+		}
 
 		cmd = *last_cmd_msg;
 		linear_cmd_x = cmd.twist.linear.x;
@@ -202,7 +201,7 @@ namespace omni_controllers{
 		pre_cmd.emplace(empty_twist);
 		pre_cmd.emplace(empty_twist);
 
-		vel_sub = get_node()->create_subscription<geometry_msgs::msg::TwistStamped>("cmd_vel", rclcpp::SystemDefaultsQoS(), std::bind(&OmniController::velCallback, this, std::placeholders::_1));
+		vel_sub = get_node()->create_subscription<geometry_msgs::msg::Twist>("cmd_vel", rclcpp::SystemDefaultsQoS(), std::bind(&OmniController::velCallback, this, std::placeholders::_1));
 		odom_pub = get_node()->create_publisher<nav_msgs::msg::Odometry>("odom", rclcpp::SystemDefaultsQoS());
 		realtime_odom_pub = std::make_shared<realtime_tools::RealtimePublisher<nav_msgs::msg::Odometry> >(odom_pub);
 		odom_transform_pub = get_node()->create_publisher<tf2_msgs::msg::TFMessage>("odom_tf", rclcpp::SystemDefaultsQoS());
@@ -292,17 +291,19 @@ namespace omni_controllers{
 		return controller_interface::CallbackReturn::SUCCESS;
 	}
 
-	void OmniController::velCallback(const std::shared_ptr<geometry_msgs::msg::TwistStamped> cmd_vel_){
+	void OmniController::velCallback(const geometry_msgs::msg::Twist::SharedPtr cmd_vel_){
+		geometry_msgs::msg::TwistStamped cmd_stamped;
+
 		if(!subscriber_is_active){
 			RCLCPP_WARN(get_node()->get_logger(), "Can't accept new command due to subscriber no activated");
 			return;
 		}
-		if((cmd_vel_->header.stamp.sec == 0) and (cmd_vel_->header.stamp.nanosec == 0)){
-			RCLCPP_WARN_ONCE(get_node()->get_logger(), "Received TwistStamped with zero timestamp, setting it to current " "time, this message will only be shown once");
-			cmd_vel_->header.stamp = get_node()->get_clock()->now();
-		}
 
-		receive_vel_msg_ptr.set(std::move(cmd_vel_));
+		cmd_stamped.header.stamp = get_node()->get_clock()->now();
+		cmd_stamped.twist.linear = cmd_vel_->linear;
+		cmd_stamped.twist.angular = cmd_vel_->angular;
+
+		receive_vel_msg_ptr.set(std::move(std::make_shared<geometry_msgs::msg::TwistStamped>(cmd_stamped)));
 	}
 
 	controller_interface::CallbackReturn OmniController::configureWheel(const std::vector<std::string>& wheel_names_, std::vector<WheelHandle>& registered_handles_){
