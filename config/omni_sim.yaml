@@ -2,33 +2,31 @@ controller_manager:
   ros__parameters:
     update_rate: 100
 
-    position_controller:
-      type: position_controllers/JointGroupPositionController
+    omni_controllers:
+      type: omni_controllers/OmniController
     
-    velocity_controller:
-      type: velocity_controllers/JointGroupVelocityController
-
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
     imu_sensor_broadcaster:
       type: imu_sensor_broadcaster/IMUSensorBroadcaster
 
-position_controller:
+omni_controllers:
   ros__parameters:
-    joints:
+    rotate_name:
       - fr_wheel_rotate_joint
       - fl_wheel_rotate_joint
       - bl_wheel_rotate_joint
       - br_wheel_rotate_joint
 
-velocity_controller:
-  ros__parameters:
-    joints:
+    wheel_name:
       - fr_wheel_wheel_joint
       - fl_wheel_wheel_joint
       - bl_wheel_wheel_joint
       - br_wheel_wheel_joint
+
+    wheel_d: 0.2828
+    wheel_r: 0.05
 
 imu_sensor_broadcaster:
   ros__parameters:

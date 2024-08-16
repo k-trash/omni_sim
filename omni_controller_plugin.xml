@@ -1,0 +1,5 @@
+<library path="omni_controllers">
+	<class name="omni_controllers/OmniController" type="omni_controllers::OmniController" base_class_type="controller_interface::ControllerInterface">
+		<description>omni control plugin</description>
+	</class>
+</library>
