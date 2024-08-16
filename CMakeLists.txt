@@ -24,15 +24,9 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
 )
 
 # find dependencies
-find_package(ament_cmake REQUIRED)
-find_package(parameter_traits REQUIRED)
-find_package(backward_ros REQUIRED)
-find_package(controller_manager REQUIRED)
-foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
-  find_package(${Dependency} REQUIRED)
-endforeach()
+find_package(ament_cmake_auto REQUIRED)
 
-#ament_auto_find_build_dependencies()
+ament_auto_find_build_dependencies()
 
 add_compile_definitions(RCPPUTILS_VERSION_MAJOR=${rcpputils_VERSION_MAJOR})
 add_compile_definitions(RCPPUTILS_VERSION_MINOR=${rcpputils_VERSION_MINOR})
@@ -49,7 +43,7 @@ add_library(omni_controllers SHARED
 ament_auto_add_library(odom_tf_converter src/odom_tf_converter.cpp)
 rclcpp_components_register_nodes(odom_tf_converter "OmniRobotController::OdomToTf")
 
-#target_compile_features(omni_controllers PUBLIC cxx_std_17)
+target_compile_features(omni_controllers PUBLIC cxx_std_17)
 target_include_directories(omni_controllers PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/omni_controllers>
@@ -94,4 +88,4 @@ endif()
 
 ament_export_targets(export_omni_controllers HAS_LIBRARY_TARGET)
 ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
-ament_package()
+ament_auto_package()

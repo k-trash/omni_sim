@@ -166,8 +166,6 @@ namespace omni_controllers{
 			registered_rotate_handles[i].position.get().set_value(std::atan2(wheel_vel[i][Y], wheel_vel[i][X]));
 		}
 
-		RCLCPP_INFO(get_node()->get_logger(), "lf_wheel : %lf", registered_wheel_handles[0].velocity.get().get_value());
-	
 		return controller_interface::return_type::OK;
 	}
 
