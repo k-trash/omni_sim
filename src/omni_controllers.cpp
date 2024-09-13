@@ -163,7 +163,9 @@ namespace omni_controllers{
 
 		for(uint8_t i=0; i<4; i++){
 			registered_wheel_handles[i].effort.get().set_value(pid[i].calcEffort(std::hypot(wheel_vel[i][X], wheel_vel[i][Y]), wheel_feedback[i]));
-			registered_rotate_handles[i].position.get().set_value(std::atan2(wheel_vel[i][Y], wheel_vel[i][X]));
+			if(wheel_vel[i][X] != 0 or wheel_vel[i][Y] != 0){
+				registered_rotate_handles[i].position.get().set_value(std::atan2(wheel_vel[i][Y], wheel_vel[i][X]));
+			}
 		}
 
 		return controller_interface::return_type::OK;
