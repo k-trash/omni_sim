@@ -48,7 +48,7 @@ namespace omni_controllers{
 		std::vector<std::string> conf_names;
 			
 		for(const auto& joint_name: params.wheel_name){
-			conf_names.push_back(joint_name + "/" +  hardware_interface::HW_IF_VELOCITY);
+			conf_names.push_back(joint_name + "/" +  hardware_interface::HW_IF_EFFORT);
 		}
 		for(const auto& joint_name: params.rotate_name){
 			conf_names.push_back(joint_name + "/" + hardware_interface::HW_IF_POSITION);
@@ -162,7 +162,7 @@ namespace omni_controllers{
 		}
 
 		for(uint8_t i=0; i<4; i++){
-			registered_wheel_handles[i].velocity.get().set_value(std::hypot(wheel_vel[i][X], wheel_vel[i][Y])/wheel_r);
+			registered_wheel_handles[i].effort.get().set_value(pid[i].calcEffort(std::hypot(wheel_vel[i][X], wheel_vel[i][Y]), wheel_feedback[i]));
 			registered_rotate_handles[i].position.get().set_value(std::atan2(wheel_vel[i][Y], wheel_vel[i][X]));
 		}
 
@@ -184,8 +184,10 @@ namespace omni_controllers{
 		odometry.initOdom(wheel_d);
 
 		for(uint8_t i=0;i<4;i++){
-			wheel_vec[i][Coordinate::X] = wheel_d * std::cos(M_PI * (i+0.5f) / 2.0f);
-			wheel_vec[i][Coordinate::Y] = wheel_d * std::sin(M_PI * (i+0.5f) / 2.0f);
+			wheel_vec[i][Coordinate::X] = wheel_d * std::cos(M_PI * (i+0.5f) / 2.0f);		//set wheel vector x
+			wheel_vec[i][Coordinate::Y] = wheel_d * std::sin(M_PI * (i+0.5f) / 2.0f);		//set wheel vector y
+
+			pid[i].setPid(0.1, 0.00001, 0.00001, 0.001, 0.0);		//set PID parameters
 		}
 
 		cmd_vel_timeout = std::chrono::milliseconds{static_cast<int>(params.cmd_vel_timeout * 1000)};
@@ -304,6 +306,7 @@ namespace omni_controllers{
 		receive_vel_msg_ptr.set(std::move(std::make_shared<geometry_msgs::msg::TwistStamped>(cmd_stamped)));
 	}
 
+	//attach controller for each wheels
 	controller_interface::CallbackReturn OmniController::configureWheel(const std::vector<std::string>& wheel_names_, std::vector<WheelHandle>& registered_handles_){
 		if(wheel_names_.empty()){
 			RCLCPP_ERROR(get_node()->get_logger(), "No wheel name specified");
@@ -312,7 +315,7 @@ namespace omni_controllers{
 
 		registered_handles_.reserve(wheel_names_.size());
 		for(const auto& wheel_name : wheel_names_){
-			const auto interface_name = hardware_interface::HW_IF_VELOCITY;
+			const auto interface_name = hardware_interface::HW_IF_EFFORT;
 			const auto state_handle = std::find_if(state_interfaces_.cbegin(), state_interfaces_.cend(),
 			[&wheel_name, &interface_name](const auto & interface)
 			{
@@ -328,7 +331,7 @@ namespace omni_controllers{
 			const auto command_handle = std::find_if(command_interfaces_.begin(), command_interfaces_.end(), [&wheel_name](const auto & interface)
 			{
 				return interface.get_prefix_name() == wheel_name &&
-				interface.get_interface_name() == hardware_interface::HW_IF_VELOCITY;
+				interface.get_interface_name() == hardware_interface::HW_IF_EFFORT;
 			});
 
 			if(command_handle == command_interfaces_.end()){
@@ -399,13 +402,13 @@ namespace omni_controllers{
 	void OmniController::halt(void){
 		const auto halt_wheels = [](auto & wheel_handles){
 			for (const auto & wheel_handle : wheel_handles){
-				wheel_handle.velocity.get().set_value(0.0);
+				wheel_handle.effort.get().set_value(0.0);
 			}
 		};
 
-		const auto halt_rotates = [](auto & wheel_handles){
-			for (const auto & wheel_handle : wheel_handles){
-				wheel_handle.position.get().set_value(0.0);
+		const auto halt_rotates = [](auto & rotate_handles){
+			for (const auto & rotate_handle : rotate_handles){
+				rotate_handle.position.get().set_value(0.0);
 			}
 		};
 

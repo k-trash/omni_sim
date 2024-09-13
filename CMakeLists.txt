@@ -38,6 +38,7 @@ generate_parameter_library(omni_controllers_param
 add_library(omni_controllers SHARED
   src/omni_controllers.cpp
   src/odom_solver.cpp
+  src/pid_controller.cpp
 )
 
 ament_auto_add_library(odom_tf_converter src/odom_tf_converter.cpp)
