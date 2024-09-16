@@ -45,3 +45,31 @@ omni_controllers:
     type: double,
     default_value: 1.0
   }
+
+  p_gain: {
+    type: double,
+    default_value: 0.1,
+    validation: {
+      gt<>: [0.0]
+    }
+  }
+
+  i_gain: {
+    type: double,
+    default_value: 0.00001
+  }
+
+  d_gain: {
+    type: double,
+    default_value: 0.00001
+  }
+
+  ff_igain: {
+    type: double,
+    default_value: 0.001
+  }
+
+  ff_jgain: {
+    type: double,
+    default_value: 0.0
+  }
