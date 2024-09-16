@@ -18,6 +18,7 @@
 #include <pluginlib/class_list_macros.hpp>
 
 #include <omni_sim/odom_solver.hpp>
+#include <omni_sim/pid_controller.hpp>
 
 #include "omni_controllers_param.hpp"
 
@@ -41,7 +42,7 @@ extern "C"{
 		private:
 			struct WheelHandle{
 				std::reference_wrapper<const hardware_interface::LoanedStateInterface> feedback;
-				std::reference_wrapper<hardware_interface::LoanedCommandInterface> velocity;
+				std::reference_wrapper<hardware_interface::LoanedCommandInterface> effort;
 			};
 
 			struct RotateHandle{
@@ -72,6 +73,8 @@ extern "C"{
 			enum Coordinate{
 				X=0, Y
 			};
+
+			PidController pid[4];
 
 			std::shared_ptr<ParamListener> param_listener;
 			Params params;

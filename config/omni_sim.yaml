@@ -27,6 +27,11 @@ omni_controllers:
 
     wheel_d: 0.2828
     wheel_r: 0.05
+    p_gain: 0.1
+    i_gain: 0.00001
+    d_gain: 0.00001
+    ff_igain: 0.001
+    ff_fgain: 0.1
 
 imu_sensor_broadcaster:
   ros__parameters:
